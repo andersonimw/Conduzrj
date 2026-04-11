@@ -1,0 +1,9 @@
+node_modules/
+.env
+data.json
+public/uploads/
+sessions/
+*.bak
+fix_*.js
+migrar.js
+server.js.bak

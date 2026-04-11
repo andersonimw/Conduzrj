@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · Conduz RJ</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--preto:#0a0a0a;--dourado:#c9a84c;--dourado2:#e8c96e;--bg:#0f0f0f;--card:#1a1a1a;--borda:#2a2a2a;--texto:#e0e0e0;--suave:#888}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--texto);min-height:100vh}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:var(--card);border:1px solid var(--borda);border-radius:20px;padding:48px 40px;max-width:380px;width:100%;text-align:center}
+.login-logo{color:var(--dourado);font-size:28px;font-weight:800;margin-bottom:8px}
+.login-logo span{color:#fff}
+.login-sub{color:var(--suave);font-size:14px;margin-bottom:32px}
+.login-input{width:100%;background:#111;border:1.5px solid var(--borda);color:#fff;padding:14px 16px;border-radius:10px;font-size:16px;margin-bottom:16px;transition:.2s}
+.login-input:focus{outline:none;border-color:var(--dourado)}
+.login-btn{width:100%;background:var(--dourado);color:#000;border:none;padding:14px;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:.2s}
+.login-btn:hover{background:var(--dourado2)}
+.login-erro{color:#ff6b6b;font-size:13px;margin-top:10px}
+
+/* PAINEL */
+.painel{display:none}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:#0a0a0a;border-right:1px solid var(--borda);padding:24px 0;z-index:10}
+.sidebar-logo{color:var(--dourado);font-size:20px;font-weight:800;padding:0 24px 24px;border-bottom:1px solid var(--borda);margin-bottom:16px}
+.sidebar-logo span{color:#fff}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:12px 24px;color:var(--suave);font-size:14px;cursor:pointer;transition:.2s;border-left:3px solid transparent}
+.sidebar-item:hover{color:var(--texto);background:rgba(255,255,255,0.03)}
+.sidebar-item.ativo{color:var(--dourado);border-left-color:var(--dourado);background:rgba(201,168,76,0.05)}
+.sidebar-item .icone{font-size:16px;width:20px;text-align:center}
+.sidebar-bottom{position:absolute;bottom:0;left:0;right:0;padding:16px 24px;border-top:1px solid var(--borda)}
+.btn-sair{width:100%;background:transparent;border:1px solid var(--borda);color:var(--suave);padding:10px;border-radius:8px;cursor:pointer;font-size:13px;transition:.2s}
+.btn-sair:hover{border-color:#ff6b6b;color:#ff6b6b}
+
+.main{margin-left:220px;padding:32px}
+.page-header{margin-bottom:28px}
+.page-title{font-size:26px;font-weight:700;margin-bottom:4px}
+.page-sub{color:var(--suave);font-size:14px}
+
+.tab{display:none}
+.tab.ativo{display:block}
+
+/* CARDS MÉTRICAS */
+.metricas{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px}
+.metrica{background:var(--card);border:1px solid var(--borda);border-radius:14px;padding:20px}
+.metrica-label{font-size:12px;color:var(--suave);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.metrica-num{font-size:28px;font-weight:800;color:var(--dourado)}
+.metrica-desc{font-size:12px;color:var(--suave);margin-top:4px}
+
+/* TABELA PEDIDOS */
+.card{background:var(--card);border:1px solid var(--borda);border-radius:16px;overflow:hidden}
+.card-header{padding:20px 24px;border-bottom:1px solid var(--borda);display:flex;align-items:center;justify-content:space-between}
+.card-titulo{font-size:16px;font-weight:700}
+.tabela{width:100%;border-collapse:collapse}
+.tabela th{padding:12px 16px;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--suave);border-bottom:1px solid var(--borda);font-weight:600}
+.tabela td{padding:14px 16px;font-size:14px;border-bottom:1px solid #151515;vertical-align:middle}
+.tabela tr:last-child td{border:none}
+.tabela tr:hover td{background:rgba(255,255,255,0.02)}
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.badge-pendente{background:rgba(255,193,7,0.15);color:#ffc107}
+.badge-confirmado{background:rgba(34,197,90,0.15);color:#22c55a}
+.badge-cancelado{background:rgba(239,68,68,0.15);color:#ef4444}
+.badge-concluido{background:rgba(99,102,241,0.15);color:#818cf8}
+.status-sel{background:#111;border:1px solid var(--borda);color:#fff;padding:5px 10px;border-radius:8px;font-size:12px;cursor:pointer}
+
+/* FORMULÁRIOS ADMIN */
+.form-admin{display:grid;gap:16px}
+.form-admin label{font-size:12px;color:var(--suave);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px}
+.form-admin input,.form-admin textarea,.form-admin select{width:100%;background:#111;border:1.5px solid var(--borda);color:#fff;padding:12px 14px;border-radius:10px;font-size:14px;font-family:inherit;transition:.2s}
+.form-admin input:focus,.form-admin textarea:focus{outline:none;border-color:var(--dourado)}
+.form-admin textarea{min-height:100px;resize:vertical}
+.form-2col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.btn-salvar{background:var(--dourado);color:#000;border:none;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s}
+.btn-salvar:hover{background:var(--dourado2)}
+.btn-perigo{background:transparent;color:#ef4444;border:1px solid #ef4444;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer}
+
+/* HORÁRIOS ADMIN */
+.dias-list{display:flex;flex-direction:column;gap:12px}
+.dia-row{background:#111;border:1px solid var(--borda);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.dia-nome-adm{min-width:90px;font-weight:600;font-size:15px}
+.toggle{position:relative;width:46px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:#333;border-radius:12px;cursor:pointer;transition:.2s}
+.toggle input:checked+.toggle-slider{background:var(--dourado)}
+.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.toggle input:checked+.toggle-slider::before{transform:translateX(22px)}
+.hora-inputs{display:flex;align-items:center;gap:8px;flex:1}
+.hora-inputs input{background:#0a0a0a;border:1px solid var(--borda);color:#fff;padding:7px 10px;border-radius:8px;font-size:14px;width:90px}
+
+/* SERVIÇOS ADMIN */
+.servicos-list{display:flex;flex-direction:column;gap:12px}
+.servico-row{background:#111;border:1px solid var(--borda);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.servico-row input{background:#0a0a0a;border:1px solid var(--borda);color:#fff;padding:8px 12px;border-radius:8px;font-size:14px}
+.s-nome{flex:2;min-width:120px}
+.s-preco{flex:1;min-width:100px}
+.s-desc{flex:3;min-width:160px}
+
+/* AVALIAÇÕES */
+.aval-admin-list{display:flex;flex-direction:column;gap:12px}
+.aval-admin-row{background:#111;border:1px solid var(--borda);border-radius:12px;padding:16px 20px;display:flex;gap:12px;align-items:flex-start}
+.aval-admin-info{flex:1}
+.aval-admin-nome{font-weight:700;margin-bottom:4px}
+.aval-admin-texto{font-size:13px;color:var(--suave)}
+.novo-aval{background:var(--card);border:1px solid var(--borda);border-radius:16px;padding:24px;margin-top:20px}
+.novo-aval h4{margin-bottom:16px;color:var(--dourado)}
+
+.salvo-msg{display:none;background:rgba(34,197,90,0.15);color:#22c55a;border:1px solid rgba(34,197,90,0.3);padding:10px 16px;border-radius:8px;font-size:13px;margin-top:12px}
+
+@media(max-width:768px){
+  .sidebar{width:100%;position:relative;height:auto;border-right:none;border-bottom:1px solid var(--borda);display:flex;flex-wrap:wrap;padding:12px}
+  .sidebar-logo{border:none;margin:0;padding:8px 12px}
+  .sidebar-item{padding:8px 12px;border-left:none;border-bottom:3px solid transparent}
+  .sidebar-item.ativo{border-bottom-color:var(--dourado);border-left:none}
+  .sidebar-bottom{position:relative;padding:8px 12px}
+  .main{margin-left:0;padding:20px}
+  .form-2col{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <div class="login-logo">Conduz<span>RJ</span></div>
+    <div class="login-sub">Painel Administrativo</div>
+    <input type="password" class="login-input" id="senhaInput" placeholder="Digite a senha" onkeydown="if(event.key==='Enter')fazerLogin()">
+    <button class="login-btn" onclick="fazerLogin()">Entrar</button>
+    <div class="login-erro" id="loginErro"></div>
+  </div>
+</div>
+
+<!-- PAINEL -->
+<div class="painel" id="painel">
+  <div class="sidebar">
+    <div class="sidebar-logo">Conduz<span>RJ</span></div>
+    <div class="sidebar-item ativo" onclick="irPara('pedidos')"><span class="icone">📋</span> Pedidos</div>
+    <div class="sidebar-item" onclick="irPara('horarios')"><span class="icone">🕐</span> Horários</div>
+    <div class="sidebar-item" onclick="irPara('servicos')"><span class="icone">🚗</span> Serviços</div>
+    <div class="sidebar-item" onclick="irPara('avaliacoes')"><span class="icone">⭐</span> Avaliações</div>
+    <div class="sidebar-item" onclick="irPara('frota')"><span class="icone">🚗</span> Frota de Veículos</div>
+    <div class="sidebar-item" onclick="irPara('config')"><span class="icone">⚙️</span> Configurações</div>
+    <div class="sidebar-item" onclick="window.open('/','_blank')"><span class="icone">🌐</span> Ver site</div>
+    <div class="sidebar-bottom">
+      <button class="btn-sair" onclick="fazerLogout()">Sair do painel</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- PEDIDOS -->
+    <div class="tab ativo" id="tab-pedidos">
+      <div class="page-header">
+        <div class="page-title">Pedidos</div>
+        <div class="page-sub">Gerencie todas as solicitações de serviço</div>
+      </div>
+      <div class="metricas" id="metricas"></div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-titulo">Todos os pedidos</div>
+          <button class="btn-salvar" onclick="carregarPedidos()">↻ Atualizar</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tabela">
+            <thead><tr>
+              <th>Cliente</th><th>Serviço</th><th>Data / Hora</th><th>Contato</th><th>Status</th>
+            </tr></thead>
+            <tbody id="tabelaPedidos"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- HORÁRIOS -->
+    <div class="tab" id="tab-horarios">
+      <div class="page-header">
+        <div class="page-title">Horários de atendimento</div>
+        <div class="page-sub">Defina seus dias e horários de trabalho</div>
+      </div>
+      <div class="card" style="padding:24px">
+        <div class="dias-list" id="diasList"></div>
+        <br>
+        <button class="btn-salvar" onclick="salvarHorarios()">Salvar horários</button>
+        <div class="salvo-msg" id="msgHorarios">✓ Horários salvos com sucesso!</div>
+      </div>
+    </div>
+
+    <!-- SERVIÇOS -->
+    <div class="tab" id="tab-servicos">
+      <div class="page-header">
+        <div class="page-title">Serviços</div>
+        <div class="page-sub">Edite nomes, descrições e preços</div>
+      </div>
+      <div class="card" style="padding:24px">
+        <div class="servicos-list" id="servicosList"></div>
+        <br>
+        <button class="btn-salvar" onclick="salvarServicos()">Salvar serviços</button>
+        <div class="salvo-msg" id="msgServicos">✓ Serviços salvos!</div>
+      </div>
+    </div>
+
+    <!-- AVALIAÇÕES -->
+    <div class="tab" id="tab-avaliacoes">
+      <div class="page-header">
+        <div class="page-title">Avaliações</div>
+        <div class="page-sub">Gerencie os depoimentos exibidos no site</div>
+      </div>
+      <div class="card" style="padding:24px">
+        <div class="aval-admin-list" id="avalAdminList"></div>
+      </div>
+      <div class="novo-aval">
+        <h4>+ Adicionar avaliação</h4>
+        <div class="form-admin">
+          <div class="form-2col">
+            <div><label>Nome do cliente</label><input type="text" id="na-nome" placeholder="Ex: João S."></div>
+            <div><label>Estrelas (1-5)</label><input type="number" id="na-estrelas" min="1" max="5" value="5"></div>
+          </div>
+          <div><label>Depoimento</label><textarea id="na-texto" placeholder="O que o cliente disse..."></textarea></div>
+          <div><button class="btn-salvar" onclick="adicionarAval()">Adicionar depoimento</button></div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- FROTA -->
+    <div class="tab" id="tab-frota">
+      <div class="page-header">
+        <div class="page-title">Frota de Veículos</div>
+        <div class="page-sub">Gerencie seus veículos e fotos exibidas no site</div>
+      </div>
+      <div class="card" style="padding:24px;margin-bottom:20px">
+        <div class="card-header" style="padding:0 0 16px">
+          <div class="card-titulo">Veículos cadastrados</div>
+          <button class="btn-salvar" onclick="mostrarFormVeiculo()">+ Adicionar veículo</button>
+        </div>
+        <div id="frotaList"></div>
+      </div>
+      <div class="card" style="padding:24px;display:none" id="formVeiculoCard">
+        <h4 style="color:var(--dourado);margin-bottom:20px" id="formVeiculoTitulo">Novo veículo</h4>
+        <div class="form-admin">
+          <div class="form-2col">
+            <div><label>Modelo</label><input type="text" id="v-modelo" placeholder="Ex: Toyota Corolla"></div>
+            <div><label>Ano</label><input type="text" id="v-ano" placeholder="Ex: 2023"></div>
+          </div>
+          <div class="form-2col">
+            <div><label>Cor</label><input type="text" id="v-cor" placeholder="Ex: Preto"></div>
+            <div><label>Placa</label><input type="text" id="v-placa" placeholder="Ex: ABC-1234"></div>
+          </div>
+          <div><label>Descricao (opcional)</label><input type="text" id="v-desc" placeholder="Ex: Ar condicionado, banco de couro..."></div>
+          <div>
+            <label>Fotos do veiculo</label>
+            <div id="fotosPreview" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px"></div>
+            <label style="display:inline-block;background:#111;border:1.5px dashed var(--borda);color:var(--suave);padding:12px 20px;border-radius:10px;cursor:pointer">
+              Escolher fotos da galeria
+              <input type="file" id="v-fotos" accept="image/*" multiple style="display:none" onchange="previewFotos(this)">
+            </label>
+            <div style="font-size:12px;color:var(--suave);margin-top:8px">Maximo 5MB por foto - JPG, PNG ou WEBP</div>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn-salvar" onclick="salvarVeiculo()">Salvar veiculo</button>
+            <button class="btn-perigo" onclick="cancelarFormVeiculo()">Cancelar</button>
+          </div>
+          <div class="salvo-msg" id="msgFrota">Veiculo salvo com sucesso</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div class="tab" id="tab-config">
+      <div class="page-header">
+        <div class="page-title">Configurações</div>
+        <div class="page-sub">Dados do motorista e do serviço</div>
+      </div>
+      <div class="card" style="padding:28px">
+        <div class="form-admin" id="formConfig">
+          <div class="form-2col">
+            <div><label>Nome do app/serviço</label><input type="text" id="cfg-nome"></div>
+            <div><label>Seu nome (motorista)</label><input type="text" id="cfg-motorista"></div>
+          </div>
+          <div class="form-2col">
+            <div><label>WhatsApp (só números)</label><input type="text" id="cfg-telefone" placeholder="21999999999"></div>
+            <div><label>Veículo</label><input type="text" id="cfg-veiculo" placeholder="Toyota Corolla 2023"></div>
+          </div>
+          <div><label>Sobre você (aparece no site)</label><textarea id="cfg-sobre"></textarea></div>
+          <div class="form-2col">
+            <div><label>Instagram (opcional)</label><input type="text" id="cfg-instagram" placeholder="@conduzrj"></div>
+            <div><label>Nova senha admin</label><input type="password" id="cfg-senha" placeholder="Deixe em branco para manter"></div>
+          </div>
+          <div>
+            <button class="btn-salvar" onclick="salvarConfig()">Salvar configurações</button>
+            <div class="salvo-msg" id="msgConfig">✓ Configurações salvas!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const diasNomes = {segunda:'Segunda-feira',terca:'Terça-feira',quarta:'Quarta-feira',quinta:'Quinta-feira',sexta:'Sexta-feira',sabado:'Sábado',domingo:'Domingo'};
+let dadosAdmin = {};
+
+async function fazerLogin() {
+  const senha = document.getElementById('senhaInput').value;
+  const r = await fetch('/api/admin/login', { headers: Object.assign({'x-admin-token':'conduzrj2024'}, arguments[1]?.headers||{}), method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({senha})});
+  const d = await r.json();
+  if (d.sucesso) {
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('painel').style.display = 'block';
+    carregarTudo();
+  } else {
+    document.getElementById('loginErro').textContent = 'Senha incorreta. Tente novamente.';
+  }
+}
+
+async function fazerLogout() {
+  await fetch('/api/admin/logout');
+  location.reload();
+}
+
+async function carregarTudo() {
+  await Promise.all([carregarPedidos(), carregarConfigAdmin()]);
+}
+
+async function carregarPedidos() {
+  const r = await fetch('/api/admin/pedidos');
+  if (!r.ok) return;
+  const pedidos = await r.json();
+  const pendentes = pedidos.filter(p=>p.status==='pendente').length;
+  const confirmados = pedidos.filter(p=>p.status==='confirmado').length;
+  const concluidos = pedidos.filter(p=>p.status==='concluido').length;
+  document.getElementById('metricas').innerHTML = `
+    <div class="metrica"><div class="metrica-label">Total</div><div class="metrica-num">${pedidos.length}</div><div class="metrica-desc">pedidos</div></div>
+    <div class="metrica"><div class="metrica-label">Pendentes</div><div class="metrica-num" style="color:#ffc107">${pendentes}</div><div class="metrica-desc">aguardando</div></div>
+    <div class="metrica"><div class="metrica-label">Confirmados</div><div class="metrica-num" style="color:#22c55a">${confirmados}</div><div class="metrica-desc">agendados</div></div>
+    <div class="metrica"><div class="metrica-label">Concluídos</div><div class="metrica-num" style="color:#818cf8">${concluidos}</div><div class="metrica-desc">realizados</div></div>`;
+  const tb = document.getElementById('tabelaPedidos');
+  if (!pedidos.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--suave)">Nenhum pedido ainda</td></tr>'; return; }
+  tb.innerHTML = pedidos.map(p => `
+    <tr>
+      <td><strong>${p.nome}</strong>${p.observacoes?`<br><small style="color:var(--suave)">${p.observacoes}</small>`:''}</td>
+      <td>${p.servico}</td>
+      <td>${formatarData(p.data)}<br><small style="color:var(--suave)">${p.hora}</small></td>
+      <td><a href="https://wa.me/55${p.telefone.replace(/\D/g,'')}" target="_blank" style="color:var(--dourado)">${p.telefone}</a>${p.origem?`<br><small style="color:var(--suave)">De: ${p.origem}</small>`:''}</td>
+      <td>
+        <select class="status-sel" onchange="atualizarStatus(${p.id},this.value)">
+          <option value="pendente" ${p.status==='pendente'?'selected':''}>Pendente</option>
+          <option value="confirmado" ${p.status==='confirmado'?'selected':''}>Confirmado</option>
+          <option value="concluido" ${p.status==='concluido'?'selected':''}>Concluído</option>
+          <option value="cancelado" ${p.status==='cancelado'?'selected':''}>Cancelado</option>
+        </select>
+      </td>
+    </tr>`).join('');
+}
+
+async function atualizarStatus(id, status) {
+  await fetch(`/api/admin/pedido/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})});
+  carregarPedidos();
+}
+
+async function carregarConfigAdmin() {
+  const r = await fetch('/api/admin/config');
+  if (!r.ok) return;
+  const c = await r.json();
+  dadosAdmin.config = c;
+  document.getElementById('cfg-nome').value = c.nome||'';
+  document.getElementById('cfg-motorista').value = c.motorista||'';
+  document.getElementById('cfg-telefone').value = c.telefone||'';
+  document.getElementById('cfg-veiculo').value = c.veiculo||'';
+  document.getElementById('cfg-sobre').value = c.sobre||'';
+  document.getElementById('cfg-instagram').value = c.instagram||'';
+  const rpub = await fetch('/api/dados');
+  const pub = await rpub.json();
+  renderHorariosAdmin(pub.horarios);
+  renderServicosAdmin(pub.servicos);
+  renderAvalsAdmin(pub.avaliacoes);
+}
+
+function renderHorariosAdmin(h) {
+  const el = document.getElementById('diasList');
+  el.innerHTML = Object.entries(diasNomes).map(([k,v]) => {
+    const d = h[k]||{ativo:false,inicio:'07:00',fim:'22:00'};
+    return `<div class="dia-row">
+      <div class="dia-nome-adm">${v}</div>
+      <label class="toggle"><input type="checkbox" id="h-ativo-${k}" ${d.ativo?'checked':''}><div class="toggle-slider"></div></label>
+      <div class="hora-inputs">
+        <input type="time" id="h-ini-${k}" value="${d.inicio}">
+        <span style="color:var(--suave)">até</span>
+        <input type="time" id="h-fim-${k}" value="${d.fim}">
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function salvarHorarios() {
+  const h = {};
+  Object.keys(diasNomes).forEach(k => {
+    h[k] = {
+      ativo: document.getElementById(`h-ativo-${k}`).checked,
+      inicio: document.getElementById(`h-ini-${k}`).value,
+      fim: document.getElementById(`h-fim-${k}`).value
+    };
+  });
+  await fetch('/api/admin/horarios', { headers: Object.assign({'x-admin-token':'conduzrj2024'}, arguments[1]?.headers||{}), method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(h)});
+  mostrarMsg('msgHorarios');
+}
+
+function renderServicosAdmin(servicos) {
+  const el = document.getElementById('servicosList');
+  el.innerHTML = servicos.map((s,i) => `
+    <div class="servico-row">
+      <label class="toggle"><input type="checkbox" id="s-ativo-${i}" ${s.ativo?'checked':''}><div class="toggle-slider"></div></label>
+      <input class="s-nome" type="text" id="s-nome-${i}" value="${s.nome}" placeholder="Nome">
+      <input class="s-preco" type="text" id="s-preco-${i}" value="${s.preco}" placeholder="Preço">
+      <input class="s-desc" type="text" id="s-desc-${i}" value="${s.descricao}" placeholder="Descrição">
+      <input type="hidden" id="s-id-${i}" value="${s.id}">
+      <input type="hidden" id="s-icone-${i}" value="${s.icone}">
+    </div>`).join('');
+  document.getElementById('servicosList').dataset.total = servicos.length;
+}
+
+async function salvarServicos() {
+  const total = parseInt(document.getElementById('servicosList').dataset.total||0);
+  const servicos = [];
+  for(let i=0;i<total;i++) {
+    servicos.push({
+      id: parseInt(document.getElementById(`s-id-${i}`).value),
+      icone: document.getElementById(`s-icone-${i}`).value,
+      ativo: document.getElementById(`s-ativo-${i}`).checked,
+      nome: document.getElementById(`s-nome-${i}`).value,
+      preco: document.getElementById(`s-preco-${i}`).value,
+      descricao: document.getElementById(`s-desc-${i}`).value
+    });
+  }
+  await fetch('/api/admin/servicos', { headers: Object.assign({'x-admin-token':'conduzrj2024'}, arguments[1]?.headers||{}), method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(servicos)});
+  mostrarMsg('msgServicos');
+}
+
+function renderAvalsAdmin(avals) {
+  const el = document.getElementById('avalAdminList');
+  if (!avals.length) { el.innerHTML = '<p style="color:var(--suave)">Nenhuma avaliação ainda.</p>'; return; }
+  el.innerHTML = avals.map((a,i) => `
+    <div class="aval-admin-row">
+      <div class="aval-admin-info">
+        <div class="aval-admin-nome">${a.nome} · ${'★'.repeat(a.estrelas)}</div>
+        <div class="aval-admin-texto">"${a.texto}"</div>
+      </div>
+      <button class="btn-perigo" onclick="removerAval(${i})">Remover</button>
+    </div>`).join('');
+}
+
+async function adicionarAval() {
+  const nome = document.getElementById('na-nome').value.trim();
+  const texto = document.getElementById('na-texto').value.trim();
+  const estrelas = parseInt(document.getElementById('na-estrelas').value)||5;
+  if (!nome||!texto) { alert('Preencha nome e depoimento'); return; }
+  const r = await fetch('/api/dados');
+  const pub = await r.json();
+  const novas = [...(pub.avaliacoes||[]), {nome,texto,estrelas,data:new Date().toISOString().split('T')[0]}];
+  await fetch('/api/admin/avaliacoes', { headers: Object.assign({'x-admin-token':'conduzrj2024'}, arguments[1]?.headers||{}), method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(novas)}).catch(()=>{});
+  const rConf = await fetch('/api/admin/config');
+  const conf = await rConf.json();
+  const db = {avaliacoes: novas};
+  await fetch('/api/admin/avaliacoes-save', { headers: Object.assign({'x-admin-token':'conduzrj2024'}, arguments[1]?.headers||{}), method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(novas)});
+  document.getElementById('na-nome').value='';
+  document.getElementById('na-texto').value='';
+  carregarConfigAdmin();
+}
+
+async function removerAval(idx) {
+  if (!confirm('Remover esta avaliação?')) return;
+  const r = await fetch('/api/dados');
+  const pub = await r.json();
+  pub.avaliacoes.splice(idx,1);
+  await fetch('/api/admin/avaliacoes-save', { headers: Object.assign({'x-admin-token':'conduzrj2024'}, arguments[1]?.headers||{}), method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(pub.avaliacoes)});
+  renderAvalsAdmin(pub.avaliacoes);
+}
+
+async function salvarConfig() {
+  const body = {
+    nome: document.getElementById('cfg-nome').value,
+    motorista: document.getElementById('cfg-motorista').value,
+    telefone: document.getElementById('cfg-telefone').value,
+    veiculo: document.getElementById('cfg-veiculo').value,
+    sobre: document.getElementById('cfg-sobre').value,
+    instagram: document.getElementById('cfg-instagram').value
+  };
+  const senha = document.getElementById('cfg-senha').value;
+  if (senha) body.senha_admin = senha;
+  await fetch('/api/admin/config', { headers: Object.assign({'x-admin-token':'conduzrj2024'}, arguments[1]?.headers||{}), method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  mostrarMsg('msgConfig');
+}
+
+function irPara(aba) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('ativo'));
+  document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('ativo'));
+  document.getElementById('tab-'+aba).classList.add('ativo');
+  event.currentTarget.classList.add('ativo');
+  if (aba === 'frota') carregarFrota();
+}
+
+function mostrarMsg(id) {
+  const el = document.getElementById(id);
+  el.style.display='block';
+  setTimeout(()=>el.style.display='none',3000);
+}
+
+function formatarData(d) {
+  if (!d) return '';
+  const [y,m,dia] = d.split('-');
+  return `${dia}/${m}/${y}`;
+}
+
+// FROTA
+let veiculoEditando = -1;
+let fotosNovas = [];
+
+async function carregarFrota() {
+  const r = await fetch('/api/admin/frota');
+  if (!r.ok) return;
+  const frota = await r.json();
+  const el = document.getElementById('frotaList');
+  if (!frota.length) {
+    el.innerHTML = '<p style="color:var(--suave);padding:16px 0">Nenhum veiculo cadastrado ainda. Clique em + Adicionar veiculo.</p>';
+    return;
+  }
+  el.innerHTML = frota.map((v, i) => {
+    const fotos = (v.fotos || []);
+    return '<div style="background:#111;border:1px solid var(--borda);border-radius:12px;padding:16px 20px;margin-bottom:12px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">'
+      + (fotos[0] ? '<img src="'+fotos[0]+'" style="width:80px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--borda)">' : '<div style="width:80px;height:60px;background:#1a1a1a;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--suave);font-size:24px">car</div>')
+      + '<div style="flex:1">'
+      + '<div style="font-weight:700;font-size:15px;margin-bottom:4px">'+v.modelo+' '+v.ano+'</div>'
+      + '<div style="font-size:13px;color:var(--suave)">'+v.cor+(v.placa ? ' &nbsp;·&nbsp; '+v.placa : '')+'</div>'
+      + (v.descricao ? '<div style="font-size:12px;color:#666;margin-top:4px">'+v.descricao+'</div>' : '')
+      + '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">'
+      + fotos.map(f => '<img src="'+f+'" style="width:40px;height:30px;object-fit:cover;border-radius:4px">').join('')
+      + '</div></div>'
+      + '<div style="display:flex;gap:8px">'
+      + '<button class="btn-salvar" style="padding:6px 14px;font-size:13px" onclick="editarVeiculo('+i+')">Editar</button>'
+      + '<button class="btn-perigo" onclick="removerVeiculo('+i+')">Remover</button>'
+      + '</div></div>';
+  }).join('');
+}
+
+function mostrarFormVeiculo() {
+  veiculoEditando = -1;
+  fotosNovas = [];
+  document.getElementById('v-modelo').value = '';
+  document.getElementById('v-ano').value = '';
+  document.getElementById('v-cor').value = '';
+  document.getElementById('v-placa').value = '';
+  document.getElementById('v-desc').value = '';
+  document.getElementById('fotosPreview').innerHTML = '';
+  document.getElementById('formVeiculoTitulo').textContent = 'Novo veiculo';
+  document.getElementById('formVeiculoCard').style.display = 'block';
+  document.getElementById('formVeiculoCard').scrollIntoView({behavior:'smooth'});
+}
+
+async function editarVeiculo(idx) {
+  const r = await fetch('/api/admin/frota');
+  const frota = await r.json();
+  const v = frota[idx];
+  veiculoEditando = idx;
+  fotosNovas = v.fotos || [];
+  document.getElementById('v-modelo').value = v.modelo || '';
+  document.getElementById('v-ano').value = v.ano || '';
+  document.getElementById('v-cor').value = v.cor || '';
+  document.getElementById('v-placa').value = v.placa || '';
+  document.getElementById('v-desc').value = v.descricao || '';
+  document.getElementById('formVeiculoTitulo').textContent = 'Editar veiculo';
+  const prev = document.getElementById('fotosPreview');
+  prev.innerHTML = fotosNovas.map((f,i) => '<div style="position:relative">'
+    + '<img src="'+f+'" style="width:80px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--borda)">'
+    + '<button onclick="removerFotoExistente('+i+')" style="position:absolute;top:-6px;right:-6px;background:#ef4444;border:none;color:#fff;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:11px">x</button>'
+    + '</div>').join('');
+  document.getElementById('formVeiculoCard').style.display = 'block';
+  document.getElementById('formVeiculoCard').scrollIntoView({behavior:'smooth'});
+}
+
+function removerFotoExistente(idx) {
+  fotosNovas.splice(idx, 1);
+  const prev = document.getElementById('fotosPreview');
+  prev.innerHTML = fotosNovas.map((f,i) => '<div style="position:relative">'
+    + '<img src="'+f+'" style="width:80px;height:60px;object-fit:cover;border-radius:8px">'
+    + '<button onclick="removerFotoExistente('+i+')" style="position:absolute;top:-6px;right:-6px;background:#ef4444;border:none;color:#fff;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:11px">x</button>'
+    + '</div>').join('');
+}
+
+function previewFotos(input) {
+  const files = Array.from(input.files);
+  const prev = document.getElementById('fotosPreview');
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const div = document.createElement('div');
+      div.style.cssText = 'position:relative';
+      div.innerHTML = '<img src="'+e.target.result+'" style="width:80px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--borda)">'
+        + '<div style="position:absolute;top:-6px;right:-6px;background:var(--dourado);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#000;font-weight:700">N</div>';
+      prev.appendChild(div);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function salvarVeiculo() {
+  const modelo = document.getElementById('v-modelo').value.trim();
+  const ano = document.getElementById('v-ano').value.trim();
+  const cor = document.getElementById('v-cor').value.trim();
+  if (!modelo || !ano) { alert('Preencha pelo menos modelo e ano'); return; }
+
+  const btn = document.querySelector('#formVeiculoCard .btn-salvar');
+  btn.textContent = 'Salvando...';
+  btn.disabled = true;
+
+  try {
+    const input = document.getElementById('v-fotos');
+    const urlsFotos = [...fotosNovas.filter(f => f.startsWith('/uploads/'))];
+
+    if (input.files.length > 0) {
+      btn.textContent = 'Enviando fotos...';
+      for (const file of Array.from(input.files)) {
+        const fd = new FormData();
+        fd.append('foto', file);
+        const ur = await fetch('/api/admin/upload', { headers: Object.assign({'x-admin-token':'conduzrj2024'}, arguments[1]?.headers||{}),  method: 'POST', credentials: 'include', body: fd });
+        let ud;
+        try { 
+          ud = await ur.json();
+        } catch(e) {
+          alert('Erro no upload: ' + e.message);
+          btn.textContent = 'Salvar veiculo';
+          btn.disabled = false;
+          return;
+        }
+        if (ud.url) urlsFotos.push(ud.url);
+      }
+    }
+
+    btn.textContent = 'Salvando dados...';
+    const r = await fetch('/api/admin/frota', { headers: Object.assign({'x-admin-token':'conduzrj2024'}, arguments[1]?.headers||{}),  credentials: 'include' });
+        let frota;
+    try { frota = await r.json(); } catch(e) {
+      alert('Erro ao carregar frota: ' + e.message);
+      btn.textContent = 'Salvar veiculo';
+      btn.disabled = false;
+      return;
+    }
+
+    const veiculo = {
+      id: veiculoEditando >= 0 ? (frota[veiculoEditando]||{}).id||Date.now() : Date.now(),
+      modelo, ano, cor,
+      placa: document.getElementById('v-placa').value.trim(),
+      descricao: document.getElementById('v-desc').value.trim(),
+      fotos: urlsFotos
+    };
+
+    if (veiculoEditando >= 0) frota[veiculoEditando] = veiculo;
+    else frota.push(veiculo);
+
+    const resp = await fetch('/api/admin/frota', { headers: Object.assign({'x-admin-token':'conduzrj2024'}, arguments[1]?.headers||{}), 
+      method: 'PUT',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(frota)
+    });
+    const resultado = await resp.json();
+    if (resultado.sucesso) {
+      alert('Veiculo salvo com sucesso');
+      cancelarFormVeiculo();
+      carregarFrota();
+    } else {
+      alert('Erro ao salvar: ' + JSON.stringify(resultado));
+    }
+  } catch(e) {
+    alert('Erro inesperado: ' + e.message);
+  }
+
+  btn.textContent = 'Salvar veiculo';
+  btn.disabled = false;
+}
+
+async function removerVeiculo(idx) {
+  if (!confirm('Remover este veiculo?')) return;
+  const r = await fetch('/api/admin/frota');
+  const frota = await r.json();
+  frota.splice(idx, 1);
+  await fetch('/api/admin/frota', { headers: Object.assign({'x-admin-token':'conduzrj2024'}, arguments[1]?.headers||{}),  method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(frota) });
+  carregarFrota();
+}
+
+function cancelarFormVeiculo() {
+  document.getElementById('formVeiculoCard').style.display = 'none';
+  document.getElementById('v-fotos').value = '';
+  fotosNovas = [];
+}
+
+</script>
+</body>
+</html>

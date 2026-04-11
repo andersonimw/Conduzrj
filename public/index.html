@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conduz RJ</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--preto:#0a0a0a;--dourado:#c9a84c;--dourado2:#e8c96e;--branco:#ffffff;--cinza:#f8f8f8;--cinza2:#eeeeee;--texto:#333333;--suave:#666666}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#fff;color:var(--texto)}
+a{text-decoration:none;color:inherit}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,10,0.95);backdrop-filter:blur(10px);padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{color:var(--dourado);font-size:22px;font-weight:700;letter-spacing:1px}
+.nav-logo span{color:#fff}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{color:#ccc;font-size:14px;transition:color .2s}
+.nav-links a:hover{color:var(--dourado)}
+.nav-cta{background:var(--dourado);color:#000;padding:8px 20px;border-radius:6px;font-size:14px;font-weight:600;transition:background .2s}
+.nav-cta:hover{background:var(--dourado2)}
+.nav-menu{display:none;background:none;border:none;cursor:pointer;flex-direction:column;gap:5px}
+.nav-menu span{display:block;width:24px;height:2px;background:#fff;transition:.3s}
+.mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;background:rgba(10,10,10,0.98);padding:20px;z-index:99}
+.mobile-menu.open{display:block}
+.mobile-menu a{display:block;color:#ccc;padding:12px 0;border-bottom:1px solid #222;font-size:16px}
+
+/* HERO */
+.hero{min-height:100vh;background:linear-gradient(135deg,#0a0a0a 0%,#1a1a1a 50%,#0d0d0d 100%);display:flex;align-items:center;justify-content:center;text-align:center;padding:100px 24px 60px;position:relative}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at center,rgba(201,168,76,0.08) 0%,transparent 70%)}
+.hero-badge{display:inline-block;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);color:var(--dourado);padding:6px 16px;border-radius:20px;font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:24px}
+.hero h1{font-size:clamp(36px,6vw,72px);font-weight:800;color:#fff;line-height:1.1;margin-bottom:20px}
+.hero h1 span{color:var(--dourado)}
+.hero p{font-size:18px;color:#aaa;max-width:520px;margin:0 auto 40px;line-height:1.7}
+.hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.btn-primary{background:var(--dourado);color:#000;padding:14px 32px;border-radius:8px;font-size:16px;font-weight:700;transition:all .2s;border:none;cursor:pointer}
+.btn-primary:hover{background:var(--dourado2);transform:translateY(-2px)}
+.btn-outline{background:transparent;color:#fff;padding:14px 32px;border-radius:8px;font-size:16px;font-weight:600;border:1px solid rgba(255,255,255,0.3);transition:all .2s;cursor:pointer}
+.btn-outline:hover{border-color:var(--dourado);color:var(--dourado)}
+.hero-stats{display:flex;gap:40px;justify-content:center;margin-top:60px;flex-wrap:wrap}
+.stat{text-align:center}
+.stat-num{font-size:32px;font-weight:800;color:var(--dourado)}
+.stat-label{font-size:13px;color:#888;margin-top:4px}
+
+/* SEÇÕES */
+section{padding:80px 24px}
+.container{max-width:1100px;margin:0 auto}
+.section-tag{display:inline-block;background:rgba(201,168,76,0.1);color:var(--dourado);padding:4px 14px;border-radius:20px;font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px}
+.section-title{font-size:clamp(28px,4vw,42px);font-weight:800;margin-bottom:12px;line-height:1.2}
+.section-sub{font-size:16px;color:var(--suave);max-width:560px}
+
+/* SERVIÇOS */
+#servicos{background:var(--cinza)}
+.servicos-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:48px}
+.servico-card{background:#fff;border:1px solid var(--cinza2);border-radius:16px;padding:28px;transition:all .3s;cursor:pointer;position:relative;overflow:hidden}
+.servico-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--dourado),var(--dourado2));transform:scaleX(0);transition:.3s;transform-origin:left}
+.servico-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.1)}
+.servico-card:hover::before{transform:scaleX(1)}
+.servico-icone{width:52px;height:52px;background:rgba(201,168,76,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px}
+.servico-nome{font-size:18px;font-weight:700;margin-bottom:8px}
+.servico-desc{font-size:14px;color:var(--suave);line-height:1.6;margin-bottom:16px}
+.servico-preco{font-size:16px;font-weight:700;color:var(--dourado)}
+.servico-btn{display:block;text-align:center;background:var(--preto);color:#fff;padding:10px;border-radius:8px;font-size:14px;font-weight:600;margin-top:16px;transition:background .2s}
+.servico-btn:hover{background:#222}
+
+/* AGENDAMENTO */
+#agendar{background:#fff}
+.agendar-wrap{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;margin-top:48px}
+.agendar-info h3{font-size:24px;font-weight:700;margin-bottom:16px}
+.agendar-info p{color:var(--suave);line-height:1.8;margin-bottom:24px}
+.diferenciais{list-style:none;display:flex;flex-direction:column;gap:12px}
+.diferenciais li{display:flex;align-items:center;gap:10px;font-size:15px}
+.diferenciais li::before{content:'✓';background:var(--dourado);color:#000;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+.form-card{background:var(--cinza);border-radius:20px;padding:36px}
+.form-title{font-size:20px;font-weight:700;margin-bottom:24px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:var(--suave);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 16px;border:1.5px solid var(--cinza2);border-radius:10px;font-size:15px;background:#fff;color:var(--texto);transition:border .2s;font-family:inherit}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--dourado)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group textarea{resize:vertical;min-height:80px}
+.form-submit{width:100%;background:var(--preto);color:#fff;border:none;padding:16px;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:8px}
+.form-submit:hover{background:#111;transform:translateY(-1px)}
+.form-nota{font-size:12px;color:var(--suave);text-align:center;margin-top:12px}
+
+/* HORÁRIOS */
+#horarios{background:var(--cinza)}
+.horarios-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:48px}
+.dia-card{background:#fff;border-radius:14px;padding:20px 16px;text-align:center;border:1.5px solid transparent;transition:.2s}
+.dia-card.ativo{border-color:var(--dourado)}
+.dia-card.inativo{opacity:.45}
+.dia-nome{font-size:14px;font-weight:700;margin-bottom:8px}
+.dia-status{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.dia-status.aberto{color:#22a55a}
+.dia-status.fechado{color:#e53e3e}
+.dia-horas{font-size:13px;color:var(--suave)}
+
+/* AVALIAÇÕES */
+#avaliacoes{background:#fff}
+.aval-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:48px}
+.aval-card{background:var(--cinza);border-radius:16px;padding:28px;border:1px solid var(--cinza2)}
+.aval-estrelas{color:var(--dourado);font-size:18px;margin-bottom:12px}
+.aval-texto{font-size:15px;color:var(--texto);line-height:1.7;margin-bottom:16px;font-style:italic}
+.aval-autor{display:flex;align-items:center;gap:10px}
+.aval-avatar{width:38px;height:38px;background:var(--preto);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--dourado);font-weight:700;font-size:14px}
+.aval-nome{font-weight:700;font-size:14px}
+.aval-data{font-size:12px;color:var(--suave)}
+
+/* SOBRE */
+#sobre{background:var(--preto);color:#fff}
+#sobre .section-title{color:#fff}
+#sobre .section-sub{color:#aaa}
+.sobre-wrap{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-top:48px}
+.sobre-texto p{color:#bbb;line-height:1.9;font-size:16px;margin-bottom:20px}
+.sobre-veiculo{background:#141414;border:1px solid #2a2a2a;border-radius:20px;padding:32px}
+.veiculo-titulo{color:var(--dourado);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px}
+.veiculo-info{display:flex;flex-direction:column;gap:14px}
+.veiculo-row{display:flex;justify-content:space-between;align-items:center;padding-bottom:14px;border-bottom:1px solid #222}
+.veiculo-row:last-child{border:none;padding:0}
+.veiculo-label{color:#888;font-size:14px}
+.veiculo-valor{color:#fff;font-size:14px;font-weight:600}
+
+/* FOOTER */
+footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
+.footer-logo{color:var(--dourado);font-size:24px;font-weight:700;margin-bottom:12px}
+.footer-logo span{color:#fff}
+.footer-texto{font-size:14px;line-height:1.8;margin-bottom:20px}
+.footer-links{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+.footer-links a{color:#666;font-size:13px;transition:color .2s}
+.footer-links a:hover{color:var(--dourado)}
+.footer-copy{font-size:12px;color:#444;border-top:1px solid #111;padding-top:20px}
+
+/* WHATSAPP FLOAT */
+.wpp-float{position:fixed;bottom:24px;right:24px;width:56px;height:56px;background:#25d366;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 20px rgba(37,211,102,0.4);z-index:200;transition:transform .2s;cursor:pointer}
+.wpp-float:hover{transform:scale(1.1)}
+
+/* MODAL */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.modal-box{background:#fff;border-radius:20px;padding:40px;max-width:440px;width:100%;text-align:center}
+.modal-icon{font-size:52px;margin-bottom:16px}
+.modal-title{font-size:22px;font-weight:800;margin-bottom:10px}
+.modal-text{color:var(--suave);font-size:15px;line-height:1.7;margin-bottom:28px}
+.modal-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-wpp{background:#25d366;color:#fff;padding:14px 28px;border-radius:10px;font-weight:700;font-size:15px;border:none;cursor:pointer;transition:.2s}
+.btn-wpp:hover{background:#1fb358}
+.btn-fechar{background:var(--cinza2);color:var(--texto);padding:14px 28px;border-radius:10px;font-weight:600;font-size:15px;border:none;cursor:pointer}
+
+/* ADMIN */
+.admin-bar{display:none;position:fixed;top:64px;left:0;right:0;background:#1a1a1a;border-bottom:2px solid var(--dourado);z-index:90;padding:8px 24px;align-items:center;justify-content:space-between}
+.admin-bar.show{display:flex}
+.admin-bar span{color:var(--dourado);font-size:13px;font-weight:600}
+.admin-bar button{background:var(--dourado);color:#000;border:none;padding:6px 16px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;margin-left:8px}
+
+@media(max-width:768px){
+  .nav-links,.nav-cta{display:none}
+  .nav-menu{display:flex}
+  .agendar-wrap,.sobre-wrap{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+  .hero-stats{gap:24px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo" id="nav-logo">Conduz<span>RJ</span></div>
+  <ul class="nav-links">
+    <li><a href="#servicos">Serviços</a></li>
+    <li><a href="#agendar">Agendar</a></li>
+    <li><a href="#horarios">Horários</a></li>
+    <li><a href="#avaliacoes">Avaliações</a></li>
+    <li><a href="#sobre">Sobre</a></li>
+  </ul>
+  <a href="#agendar" class="nav-cta">Agendar agora</a>
+  <button class="nav-menu" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#servicos" onclick="toggleMenu()">Serviços</a>
+  <a href="#agendar" onclick="toggleMenu()">Agendar</a>
+  <a href="#horarios" onclick="toggleMenu()">Horários</a>
+  <a href="#avaliacoes" onclick="toggleMenu()">Avaliações</a>
+  <a href="#sobre" onclick="toggleMenu()">Sobre</a>
+  <a href="/admin" style="color:var(--dourado)">Área Admin</a>
+</div>
+
+<div class="admin-bar" id="adminBar">
+  <span>⚙️ Modo Administrador ativo</span>
+  <div>
+    <button onclick="window.location='/admin'">Painel Admin</button>
+    <button onclick="fazerLogout()">Sair</button>
+  </div>
+</div>
+
+<section class="hero" id="inicio">
+  <div>
+    <div class="hero-badge">Rio de Janeiro · Motorista Particular</div>
+    <h1>Seu motorista<br>de <span>confiança</span><br>no Rio</h1>
+    <p>Pontualidade, discrição e conforto em cada viagem. Agende com antecedência e tenha um motorista fixo e profissional.</p>
+    <div class="hero-btns">
+      <a href="#agendar" class="btn-primary" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center">Agendar agora</a>
+      <a href="#servicos" class="btn-outline" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center">Ver serviços</a>
+    </div>
+    <div class="hero-stats" id="heroStats">
+      <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Pontualidade</div></div>
+      <div class="stat"><div class="stat-num">5★</div><div class="stat-label">Avaliação</div></div>
+      <div class="stat"><div class="stat-num">24h</div><div class="stat-label">Agendamento</div></div>
+      <div class="stat"><div class="stat-num">RJ</div><div class="stat-label">Toda a cidade</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="servicos">
+  <div class="container">
+    <div class="section-tag">O que oferecemos</div>
+    <h2 class="section-title">Nossos serviços</h2>
+    <p class="section-sub">Do traslado executivo ao turismo pela cidade. Escolha o serviço ideal para você.</p>
+    <div class="servicos-grid" id="servicosGrid"></div>
+  </div>
+</section>
+
+
+<section id="frota" style="background:var(--preto);padding:80px 24px">
+  <div class="container">
+    <div class="section-tag">Nossa Frota</div>
+    <h2 class="section-title">Veículos disponíveis</h2>
+    <p class="section-sub">Conforto e segurança em cada viagem.</p>
+    <div id="frotaGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:40px"></div>
+  </div>
+</section>
+
+<section id="agendar">
+  <div class="container">
+    <div class="section-tag">Reservas</div>
+    <h2 class="section-title">Agende sua viagem</h2>
+    <p class="section-sub">Preencha o formulário e receba confirmação direto no WhatsApp.</p>
+    <div class="agendar-wrap">
+      <div class="agendar-info">
+        <h3>Por que escolher o Conduz RJ?</h3>
+        <p>Diferente dos aplicativos comuns, aqui você tem um motorista particular fixo, com preço combinado, sem surpresas e com total discrição.</p>
+        <ul class="diferenciais">
+          <li>Preço fechado, sem surge pricing</li>
+          <li>Mesmo motorista sempre</li>
+          <li>Agendamento com antecedência</li>
+          <li>Confirmação via WhatsApp</li>
+          <li>Veículo sempre limpo e abastecido</li>
+          <li>Pontualidade garantida</li>
+        </ul>
+      </div>
+      <div class="form-card">
+        <div class="form-title">Solicitar serviço</div>
+        <div class="form-group">
+          <label>Seu nome *</label>
+          <input type="text" id="f-nome" placeholder="Nome completo">
+        </div>
+        <div class="form-group">
+          <label>WhatsApp *</label>
+          <input type="tel" id="f-tel" placeholder="(21) 99999-9999">
+        </div>
+        <div class="form-group">
+          <label>Serviço desejado *</label>
+          <select id="f-servico"></select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Data *</label>
+            <input type="date" id="f-data">
+          </div>
+          <div class="form-group">
+            <label>Horário *</label>
+            <input type="time" id="f-hora">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Origem</label>
+          <input type="text" id="f-origem" placeholder="Endereço de partida">
+        </div>
+        <div class="form-group">
+          <label>Destino</label>
+          <input type="text" id="f-destino" placeholder="Endereço de destino">
+        </div>
+        <div class="form-group">
+          <label>Observações</label>
+          <textarea id="f-obs" placeholder="Alguma informação adicional?"></textarea>
+        </div>
+        <button class="form-submit" onclick="enviarPedido()">Solicitar via WhatsApp</button>
+        <p class="form-nota">Você será redirecionado ao WhatsApp para confirmar</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="horarios">
+  <div class="container">
+    <div class="section-tag">Disponibilidade</div>
+    <h2 class="section-title">Horários de atendimento</h2>
+    <p class="section-sub">Confira os dias e horários disponíveis para agendamento.</p>
+    <div class="horarios-grid" id="horariosGrid"></div>
+  </div>
+</section>
+
+<section id="avaliacoes">
+  <div class="container">
+    <div class="section-tag">Depoimentos</div>
+    <h2 class="section-title">O que dizem os clientes</h2>
+    <p class="section-sub">A satisfação dos nossos passageiros é nossa maior conquista.</p>
+    <div class="aval-grid" id="avalGrid"></div>
+  </div>
+</section>
+
+<section id="sobre">
+  <div class="container">
+    <div class="section-tag" style="background:rgba(201,168,76,0.2)">Quem somos</div>
+    <h2 class="section-title">Sobre o Conduz RJ</h2>
+    <div class="sobre-wrap">
+      <div class="sobre-texto" id="sobreTexto"></div>
+      <div class="sobre-veiculo" id="sobreVeiculo"></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">Conduz<span>RJ</span></div>
+  <p class="footer-texto">Motorista particular profissional no Rio de Janeiro.<br>Conforto, pontualidade e discrição em cada viagem.</p>
+  <div class="footer-links">
+    <a href="#servicos">Serviços</a>
+    <a href="#agendar">Agendar</a>
+    <a href="#horarios">Horários</a>
+    <a href="#avaliacoes">Avaliações</a>
+    <a href="/admin">Admin</a>
+  </div>
+  <div class="footer-copy">© 2024 Conduz RJ · Todos os direitos reservados</div>
+</footer>
+
+<div class="wpp-float" id="wppFloat" title="Falar no WhatsApp">💬</div>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="modal-icon">✅</div>
+    <div class="modal-title">Pedido registrado!</div>
+    <p class="modal-text" id="modalTexto"></p>
+    <div class="modal-btns">
+      <button class="btn-wpp" id="btnWpp">Abrir WhatsApp</button>
+      <button class="btn-fechar" onclick="fecharModal()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let dadosApp = {};
+let wppLink = '';
+
+function renderFrotaSite() {
+  const g = document.getElementById('frotaGrid');
+  if (!g) return;
+  const frota = dadosApp.frota || [];
+  if (!frota.length) { g.innerHTML = ''; return; }
+  g.innerHTML = frota.map((v, vi) => {
+    const fotos = v.fotos || [];
+    return `<div style="background:#111;border:1px solid #222;border-radius:16px;overflow:hidden">
+      <div style="position:relative;height:220px;overflow:hidden" id="carousel-${vi}">
+        ${fotos.length ? fotos.map((f,fi) => `<img src="${f}" style="width:100%;height:220px;object-fit:cover;position:absolute;top:0;left:0;transition:opacity 0.4s;opacity:${fi===0?1:0}" class="slide-${vi}" data-idx="${fi}">`).join('') : '<div style="width:100%;height:220px;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:48px">🚗</div>'}
+        ${fotos.length > 1 ? `
+        <button onclick="slideCarousel(${vi},-1)" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer">‹</button>
+        <button onclick="slideCarousel(${vi},1)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer">›</button>
+        <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px">
+          ${fotos.map((_,fi) => `<div class="dot-${vi}" data-idx="${fi}" style="width:6px;height:6px;border-radius:50%;background:${fi===0?'#c9a84c':'rgba(255,255,255,0.4)'};transition:background 0.3s"></div>`).join('')}
+        </div>` : ''}
+      </div>
+      <div style="padding:20px">
+        <div style="font-weight:700;font-size:18px;color:#fff;margin-bottom:6px">${v.modelo} ${v.ano}</div>
+        <div style="color:#888;font-size:14px">${v.cor||''}</div>
+        ${v.descricao?'<div style="color:#666;font-size:13px;margin-top:8px">'+v.descricao+'</div>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+const carouselIdx = {};
+function slideCarousel(vi, dir) {
+  const slides = document.querySelectorAll('.slide-'+vi);
+  const dots = document.querySelectorAll('.dot-'+vi);
+  if (!slides.length) return;
+  slides[carouselIdx[vi]||0].style.opacity = 0;
+  dots[carouselIdx[vi]||0].style.background = 'rgba(255,255,255,0.4)';
+  carouselIdx[vi] = ((carouselIdx[vi]||0) + dir + slides.length) % slides.length;
+  slides[carouselIdx[vi]].style.opacity = 1;
+  dots[carouselIdx[vi]].style.background = '#c9a84c';
+}
+
+async function carregarDados() {
+  try {
+    const r = await fetch('/api/dados');
+    dadosApp = await r.json();
+    renderServicos();
+    renderHorarios();
+    renderAvaliacoes();
+    renderSobre();
+    renderFrotaSite();
+    document.title = dadosApp.config.nome || 'Conduz RJ';
+    const logo = document.getElementById('nav-logo');
+    if (dadosApp.config.nome) logo.innerHTML = dadosApp.config.nome.replace(' ','<span>') + '</span>';
+    const tel = dadosApp.config.telefone?.replace(/\D/g,'');
+    if (tel) document.getElementById('wppFloat').onclick = () => window.open(`https://wa.me/55${tel}?text=Olá! Gostaria de mais informações sobre os serviços.`,'_blank');
+  } catch(e) { console.error(e); }
+}
+
+const icones = {car:'🚗',clock:'⏱️',plane:'✈️',briefcase:'💼',star:'⭐',map:'🗺️'};
+
+function renderServicos() {
+  const g = document.getElementById('servicosGrid');
+  const sel = document.getElementById('f-servico');
+  g.innerHTML = '';
+  sel.innerHTML = '<option value="">Selecione o serviço</option>';
+  (dadosApp.servicos || []).forEach(s => {
+    g.innerHTML += `<div class="servico-card" onclick="selecionarServico('${s.nome}')">
+      <div class="servico-icone">${icones[s.icone]||'🚗'}</div>
+      <div class="servico-nome">${s.nome}</div>
+      <div class="servico-desc">${s.descricao}</div>
+      <div class="servico-preco">${s.preco}</div>
+      <div class="servico-btn">Agendar este serviço →</div>
+    </div>`;
+    sel.innerHTML += `<option value="${s.nome}">${s.nome} — ${s.preco}</option>`;
+  });
+}
+
+function selecionarServico(nome) {
+  document.getElementById('f-servico').value = nome;
+  document.getElementById('agendar').scrollIntoView({behavior:'smooth'});
+}
+
+const diasNomes = {segunda:'Segunda',terca:'Terça',quarta:'Quarta',quinta:'Quinta',sexta:'Sexta',sabado:'Sábado',domingo:'Domingo'};
+
+function renderHorarios() {
+  const g = document.getElementById('horariosGrid');
+  g.innerHTML = '';
+  const h = dadosApp.horarios || {};
+  Object.entries(diasNomes).forEach(([k,v]) => {
+    const d = h[k] || {ativo:false};
+    g.innerHTML += `<div class="dia-card ${d.ativo?'ativo':'inativo'}">
+      <div class="dia-nome">${v}</div>
+      <div class="dia-status ${d.ativo?'aberto':'fechado'}">${d.ativo?'Aberto':'Fechado'}</div>
+      ${d.ativo?`<div class="dia-horas">${d.inicio} – ${d.fim}</div>`:''}
+    </div>`;
+  });
+}
+
+function renderAvaliacoes() {
+  const g = document.getElementById('avalGrid');
+  g.innerHTML = '';
+  (dadosApp.avaliacoes || []).forEach(a => {
+    g.innerHTML += `<div class="aval-card">
+      <div class="aval-estrelas">${'★'.repeat(a.estrelas)}</div>
+      <div class="aval-texto">"${a.texto}"</div>
+      <div class="aval-autor">
+        <div class="aval-avatar">${a.nome.charAt(0)}</div>
+        <div><div class="aval-nome">${a.nome}</div><div class="aval-data">${a.data}</div></div>
+      </div>
+    </div>`;
+  });
+}
+
+function renderSobre() {
+  const c = dadosApp.config || {};
+  document.getElementById('sobreTexto').innerHTML = `
+    <p>${c.sobre||''}</p>
+    <p>Atendemos toda a região metropolitana do Rio de Janeiro com excelência e profissionalismo.</p>`;
+  document.getElementById('sobreVeiculo').innerHTML = `
+    <div class="veiculo-titulo">Informações do veículo</div>
+    <div class="veiculo-info">
+      <div class="veiculo-row"><span class="veiculo-label">Motorista</span><span class="veiculo-valor">${c.motorista||'-'}</span></div>
+      <div class="veiculo-row"><span class="veiculo-label">Veículo</span><span class="veiculo-valor">${c.veiculo||'-'}</span></div>
+      <div class="veiculo-row"><span class="veiculo-label">Cobertura</span><span class="veiculo-valor">Rio de Janeiro e RMR</span></div>
+      <div class="veiculo-row"><span class="veiculo-label">Pagamentos</span><span class="veiculo-valor">Pix · Dinheiro · Cartão</span></div>
+    </div>`;
+}
+
+async function enviarPedido() {
+  const nome = document.getElementById('f-nome').value.trim();
+  const tel = document.getElementById('f-tel').value.trim();
+  const servico = document.getElementById('f-servico').value;
+  const data = document.getElementById('f-data').value;
+  const hora = document.getElementById('f-hora').value;
+  if (!nome||!tel||!servico||!data||!hora) {
+    alert('Por favor, preencha todos os campos obrigatórios (*)');
+    return;
+  }
+  const btn = document.querySelector('.form-submit');
+  btn.textContent = 'Enviando...';
+  btn.disabled = true;
+  try {
+    const r = await fetch('/api/pedido', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        nome, telefone:tel, servico, data, hora,
+        origem: document.getElementById('f-origem').value,
+        destino: document.getElementById('f-destino').value,
+        observacoes: document.getElementById('f-obs').value
+      })
+    });
+    const d = await r.json();
+    if (d.sucesso) {
+      wppLink = d.whatsapp;
+      document.getElementById('modalTexto').textContent = `Pedido registrado! Clique em "Abrir WhatsApp" para enviar sua solicitação de ${servico} para ${data} às ${hora}.`;
+      document.getElementById('btnWpp').onclick = () => { window.open(wppLink,'_blank'); fecharModal(); };
+      document.getElementById('modal').classList.add('open');
+      limparForm();
+    } else {
+      alert(d.erro || 'Erro ao enviar pedido');
+    }
+  } catch(e) {
+    alert('Erro de conexão. Tente novamente.');
+  }
+  btn.textContent = 'Solicitar via WhatsApp';
+  btn.disabled = false;
+}
+
+function limparForm() {
+  ['f-nome','f-tel','f-data','f-hora','f-origem','f-destino','f-obs'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-servico').value = '';
+}
+
+function fecharModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+function toggleMenu() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+
+async function fazerLogout() {
+  await fetch('/api/admin/logout');
+  document.getElementById('adminBar').classList.remove('show');
+}
+
+// Data mínima = hoje
+const hoje = new Date().toISOString().split('T')[0];
+document.getElementById('f-data').min = hoje;
+
+carregarDados();
+</script>
+</body>
+</html>
