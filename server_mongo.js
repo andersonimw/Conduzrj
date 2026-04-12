@@ -5,6 +5,14 @@ const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
 const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+const { Readable } = require('stream');
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,14 +38,7 @@ async function saveDB(chave, valor) {
 }
 
 // Multer
-const multerStorage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'public/uploads/'),
-  filename: (req, file, cb) => {
-    const ext = file.originalname.split('.').pop();
-    cb(null, Date.now() + '.' + ext);
-  }
-});
-const upload = multer({ storage: multerStorage, limits: { fileSize: 5 * 1024 * 1024 } });
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -154,9 +155,21 @@ app.put('/api/admin/avaliacoes-save', authAdmin, async (req, res) => {
   res.json({ sucesso: true });
 });
 
-app.post('/api/admin/upload', upload.single('foto'), (req, res) => {
+app.post('/api/admin/upload', upload.single('foto'), async (req, res) => {
   if (!req.file) return res.status(400).json({ erro: 'Nenhum arquivo enviado' });
-  res.json({ sucesso: true, url: '/uploads/' + req.file.filename });
+  try {
+    const result = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder: 'conduzrj', resource_type: 'image' },
+        (error, result) => error ? reject(error) : resolve(result)
+      );
+      Readable.from(req.file.buffer).pipe(stream);
+    });
+    res.json({ sucesso: true, url: result.secure_url });
+  } catch(e) {
+    console.error('Cloudinary erro:', e);
+    res.status(500).json({ erro: 'Erro ao fazer upload' });
+  }
 });
 
 app.get('/api/admin/frota', async (req, res) => {
