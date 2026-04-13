@@ -809,6 +809,7 @@ async function enviarPedidoModal() {
         artista: document.getElementById('ms-artista').value||'',
         ar: (document.querySelector('#modal-servico input[name="ms-ar"]:checked')||{}).value||'',
         agua: (document.querySelector('#modal-servico input[name="ms-agua"]:checked')||{}).value||'',
+        parada: document.getElementById('ms-parada').value||'',
         passageiros: document.getElementById('ms-passageiros').value||'1',
         bagagens: document.getElementById('ms-bagagens').value||'Nenhuma',
         pet: (document.querySelector('#modal-servico input[name="ms-pet"]:checked')||{}).value||''
@@ -1168,6 +1169,11 @@ document.getElementById('f-hora').addEventListener('change', calcularPreco);
       <div style="margin-bottom:14px">
         <label style="display:block;font-size:12px;font-weight:600;color:#888;margin-bottom:6px;text-transform:uppercase">Destino</label>
         <input id="ms-destino" type="text" placeholder="Endereço de destino" style="width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;box-sizing:border-box">
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:12px;font-weight:600;color:#888;margin-bottom:6px;text-transform:uppercase">🛑 Parada adicional (opcional)</label>
+        <input id="ms-parada" type="text" placeholder="Ex: Farmácia na Rua X, Banco no Centro..." style="width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;box-sizing:border-box">
       </div>
 
       <div style="margin-bottom:14px">
