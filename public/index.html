@@ -810,6 +810,7 @@ async function enviarPedidoModal() {
         ar: (document.querySelector('#modal-servico input[name="ms-ar"]:checked')||{}).value||'',
         agua: (document.querySelector('#modal-servico input[name="ms-agua"]:checked')||{}).value||'',
         parada: document.getElementById('ms-parada').value||'',
+        voo: document.getElementById('ms-voo').value||'',
         passageiros: document.getElementById('ms-passageiros').value||'1',
         bagagens: document.getElementById('ms-bagagens').value||'Nenhuma',
         pet: (document.querySelector('#modal-servico input[name="ms-pet"]:checked')||{}).value||''
@@ -1095,6 +1096,9 @@ function calcularPreco(){
     // Mostrar aviso placa identificacao
     let avisoPlaca = document.getElementById('ms-aviso-placa');
     if(avisoPlaca) avisoPlaca.style.display = 'flex';
+    // Mostrar campo de voo
+    let campoVoo = document.getElementById('ms-campo-voo');
+    if(campoVoo) campoVoo.style.display = 'block';
   }
   else if(servico.includes('turismo')){
     total = 350;
@@ -1151,6 +1155,12 @@ document.getElementById('f-hora').addEventListener('change', calcularPreco);
           <label style="display:block;font-size:12px;font-weight:600;color:#888;margin-bottom:6px;text-transform:uppercase">Horário *</label>
           <input id="ms-hora" type="time" oninput="calcularPrecoModal()" style="width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;box-sizing:border-box">
         </div>
+      </div>
+
+      <div id="ms-campo-voo" style="display:none;margin-bottom:14px">
+        <label style="display:block;font-size:12px;font-weight:600;color:#888;margin-bottom:6px;text-transform:uppercase">✈️ Número do voo (opcional)</label>
+        <input id="ms-voo" type="text" placeholder="Ex: G3 1234, LA 3050..." style="width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;box-sizing:border-box">
+        <div style="margin-top:6px;font-size:11px;color:#888">Informe o voo para acompanharmos possíveis atrasos 🕐</div>
       </div>
 
       <div id="ms-aviso-placa" style="display:none;margin-bottom:14px;padding:14px 16px;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);border-radius:12px;border-left:4px solid #c9a84c;align-items:center;gap:12px">
