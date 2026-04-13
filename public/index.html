@@ -175,6 +175,25 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
 #hero-label{position:absolute;bottom:18px;right:18px;z-index:3;font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:0.8px;}
 .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.35);cursor:pointer;transition:background 0.3s,transform 0.3s;border:none;}
 .dot.active{background:#C9A84C;transform:scale(1.3);}
+
+.agendamento-inline{border-top:2px solid #efefef;padding-top:16px;margin-top:10px}
+@keyframes agSlide{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.agendamento-inline{animation:agSlide .25s ease}
+.ag-topo{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.ag-topo span{font-size:14px;font-weight:700;color:#111}
+.ag-fechar{background:none;border:1.5px solid #ddd;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;color:#666;line-height:1}
+.ag-resumo{background:#fdf8ee;border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.ag-resumo-nome{font-size:13px;font-weight:600;color:#333}
+.ag-resumo-preco{font-size:14px;font-weight:700;color:#c9a84c}
+.ag-campo{margin-bottom:11px}
+.ag-campo label{display:block;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.ag-campo input,.ag-campo textarea{width:100%;padding:11px 13px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;box-sizing:border-box;font-family:inherit;background:#fff}
+.ag-campo input:focus,.ag-campo textarea:focus{border-color:#c9a84c;outline:none}
+.ag-campo textarea{resize:vertical;min-height:65px}
+.ag-btn-enviar{width:100%;background:#111;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;transition:background .2s}
+.ag-btn-enviar:hover{background:#1a7f3c}
+.servico-card{cursor:default}
+.servico-btn{cursor:pointer}
 </style>
 
 <style id="animacoes">
@@ -183,7 +202,7 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
 </style>
 <style>@keyframes brilho{0%,100%{opacity:1}50%{opacity:0.6}}</style>
 </head>
-<body>
+<body style="overflow-x:hidden;max-width:100vw">
 
 <nav>
   <div class="nav-logo" id="nav-logo">Conduz<span>RJ</span></div>
@@ -298,7 +317,7 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
   </div>
 </section>
 
-<section id="agendar">
+<section id="agendar" style="display:none">
   <div class="container">
     <div class="section-tag">Reservas</div>
     <h2 class="section-title">Agende sua viagem</h2>
@@ -329,6 +348,11 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
         <div class="form-group">
           <label>Serviço desejado *</label>
           <select id="f-servico"></select>
+          <div id="preco-dinamico" style="display:none;margin-top:10px;padding:12px 16px;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);border-radius:10px;border-left:4px solid #c9a84c">
+            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Valor do serviço</div>
+            <div style="font-size:22px;font-weight:800;color:#c9a84c" id="preco-valor">R$ 0,00</div>
+            <div style="font-size:11px;color:#666;margin-top:2px">Preço fixo · Sem surpresas</div>
+          </div>
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -349,9 +373,98 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
           <input type="text" id="f-destino" placeholder="Endereço de destino">
         </div>
         <div class="form-group">
+          <label>KM ESTIMADO (opcional)</label>
+          <input type="number" id="f-km" placeholder="Ex: 25" min="0" oninput="calcularPreco()">
+        </div>
+
+        <div id="calc-resultado" style="display:none;margin:16px 0;padding:16px;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);border-radius:12px;border-left:4px solid #c9a84c">
+          <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Estimativa de valor</div>
+          <div style="font-size:28px;font-weight:800;color:#c9a84c" id="calc-valor">R$ 0,00</div>
+          <div style="font-size:12px;color:#666;margin-top:4px" id="calc-detalhe"></div>
+          <div style="font-size:11px;color:#555;margin-top:8px">* Valor estimado · Confirmado via WhatsApp</div>
+        </div>
+
+        <div class="form-group" style="background:#f9f9f9;border-radius:12px;padding:16px;border:1px solid #eee">
+          <label style="margin-bottom:12px;display:block">🎵 PREFERÊNCIAS DA VIAGEM</label>
+
+          <div style="margin-bottom:12px">
+            <label style="font-size:13px;color:#555;margin-bottom:8px;display:block">Ambiente sonoro</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:13px">
+                <input type="radio" name="som" value="silencio"> 🔇 Viagem em silêncio
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:13px">
+                <input type="radio" name="som" value="musica"> 🎵 Com música
+              </label>
+            </div>
+          </div>
+
+          <div id="opcoes-musica" style="display:none;margin-bottom:12px">
+            <label style="font-size:13px;color:#555;margin-bottom:8px;display:block">Estilo musical</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:13px">
+                <input type="radio" name="musica" value="Gospel"> ✝️ Gospel
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:13px">
+                <input type="radio" name="musica" value="Funk"> 🎤 Funk
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:13px">
+                <input type="radio" name="musica" value="Pagode"> 🥁 Pagode
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:13px">
+                <input type="radio" name="musica" value="Sertanejo"> 🤠 Sertanejo
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:13px">
+                <input type="radio" name="musica" value="Pop"> 🎧 Pop/Internacional
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:13px">
+                <input type="radio" name="musica" value="Classica"> 🎻 Clássica
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:13px">
+                <input type="radio" name="musica" value="Motorista"> 🎲 Motorista escolhe
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:13px">
+                <input type="radio" name="musica" value="Outro"> ✏️ Outro artista
+              </label>
+            </div>
+            <div id="artista-wrap" style="display:none;margin-top:8px">
+              <input type="text" id="f-artista" placeholder="Nome do artista ou banda favorita" style="width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:10px;font-size:15px">
+            </div>
+          </div>
+
+          <div style="margin-bottom:12px">
+            <label style="font-size:13px;color:#555;margin-bottom:8px;display:block">❄️ Ar condicionado</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:13px;justify-content:center">
+                <input type="radio" name="ar" value="Frio"> ❄️ Frio
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:13px;justify-content:center">
+                <input type="radio" name="ar" value="Normal"> 😊 Normal
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:13px;justify-content:center">
+                <input type="radio" name="ar" value="Desligado"> 🌬️ Desligado
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label style="font-size:13px;color:#555;margin-bottom:8px;display:block">💧 Água mineral</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:13px">
+                <input type="radio" name="agua" value="Sim"> 💧 Sim, por favor
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:13px">
+                <input type="radio" name="agua" value="Nao"> 🚫 Não preciso
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
           <label>Observações</label>
           <textarea id="f-obs" placeholder="Alguma informação adicional?"></textarea>
         </div>
+
         <button class="form-submit" onclick="enviarPedido()">Solicitar via WhatsApp</button>
         <p class="form-nota">Você será redirecionado ao WhatsApp para confirmar</p>
       </div>
@@ -485,20 +598,210 @@ function renderServicos() {
   g.innerHTML = '';
   sel.innerHTML = '<option value="">Selecione o serviço</option>';
   (dadosApp.servicos || []).forEach(s => {
-    g.innerHTML += `<div class="servico-card" onclick="selecionarServico('${s.nome}')">
+    const uid = 'ag_' + s.nome.replace(/[^a-z0-9]/gi,'_');
+    g.innerHTML += `<div class="servico-card" id="card_${uid}">
       <div class="servico-icone">${icones[s.icone]||'🚗'}</div>
       <div class="servico-nome">${s.nome}</div>
       <div class="servico-desc">${s.descricao}</div>
       <div class="servico-preco">${s.preco}</div>
-      <div class="servico-btn">Agendar este serviço →</div>
+      <div class="servico-btn" onclick="selecionarServico('${s.nome}')">Agendar este serviço →</div>
+      <div class="agendamento-inline" id="${uid}" style="display:none">
+        <div class="ag-topo">
+          <span>📋 Dados do agendamento</span>
+          <button class="ag-fechar" onclick="fecharInline('${uid}',event)">✕</button>
+        </div>
+        <div class="ag-resumo">
+          <span class="ag-resumo-nome">${s.nome}</span>
+          <span class="ag-resumo-preco">${s.preco}</span>
+        </div>
+        <div class="ag-campo"><label>SEU NOME *</label><input type="text" id="${uid}_nome" placeholder="Nome completo"></div>
+        <div class="ag-campo"><label>WHATSAPP *</label><input type="tel" id="${uid}_tel" placeholder="(21) 99999-9999"></div>
+        <div class="ag-campo"><label>DATA *</label><input type="date" id="${uid}_data"></div>
+        <div class="ag-campo"><label>HORÁRIO *</label><input type="time" id="${uid}_hora"></div>
+        <div class="ag-campo"><label>ORIGEM</label><input type="text" id="${uid}_origem" placeholder="Endereço de partida"></div>
+        <div class="ag-campo"><label>DESTINO</label><input type="text" id="${uid}_destino" placeholder="Endereço de destino"></div>
+        <div class="ag-campo"><label>OBSERVAÇÕES</label><textarea id="${uid}_obs" placeholder="Alguma informação adicional?" rows="3"></textarea></div>
+        <button class="ag-btn-enviar" onclick="enviarInline('${uid}','${s.nome}','${s.preco}',event)">📲 Solicitar via WhatsApp</button>
+      </div>
     </div>`;
     sel.innerHTML += `<option value="${s.nome}">${s.nome} — ${s.preco}</option>`;
   });
 }
 
 function selecionarServico(nome) {
+  // Preenche o select do formulario antigo tambem
   document.getElementById('f-servico').value = nome;
-  document.getElementById('agendar').scrollIntoView({behavior:'smooth'});
+  document.getElementById('f-servico').dispatchEvent(new Event('change'));
+  
+  // Abre modal de agendamento rapido
+  const preco = Array.from(document.getElementById('f-servico').options)
+    .find(o => o.value === nome);
+  const precoTexto = preco ? preco.text.split('—')[1]?.trim() : '';
+  
+  document.getElementById('ms-servico-nome').textContent = nome;
+  document.getElementById('ms-servico-preco').textContent = precoTexto || 'A consultar';
+  document.getElementById('ms-nome').value = '';
+  document.getElementById('ms-tel').value = '';
+  document.getElementById('ms-data').value = '';
+  document.getElementById('ms-hora').value = '';
+  document.getElementById('ms-origem').value = '';
+  document.getElementById('ms-destino').value = '';
+  document.getElementById('ms-km').value = '';
+  document.getElementById('ms-obs').value = '';
+  document.getElementById('ms-calc').style.display = 'none';
+  document.getElementById('ms-opcoes-musica').style.display = 'none';
+  document.querySelectorAll('#modal-servico input[type=radio]').forEach(r => r.checked = false);
+  
+  // Data minima
+  const hoje = new Date().toISOString().split('T')[0];
+  document.getElementById('ms-data').min = hoje;
+  
+  document.getElementById('modal-servico').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  calcularPrecoModal();
+}
+
+
+function toggleAgendamento(uid, nome, preco, e) {
+  if(e) e.stopPropagation();
+  document.querySelectorAll('.agendamento-inline').forEach(function(el) {
+    if(el.id !== uid) el.style.display = 'none';
+  });
+  const el = document.getElementById(uid);
+  if(!el) return;
+  const abrir = !el.style.display || el.style.display === 'none';
+  el.style.display = abrir ? 'block' : 'none';
+  if(abrir) {
+    const hoje = new Date().toISOString().split('T')[0];
+    const d = document.getElementById(uid+'_data');
+    if(d) d.min = hoje;
+    setTimeout(function() {
+      const card = document.getElementById('card_'+uid);
+      if(card) card.scrollIntoView({behavior:'smooth', block:'nearest'});
+    }, 120);
+  }
+}
+
+function fecharInline(uid, e) {
+  if(e) e.stopPropagation();
+  const el = document.getElementById(uid);
+  if(el) el.style.display = 'none';
+}
+
+function enviarInline(uid, nome, preco, e) {
+  if(e) e.stopPropagation();
+  function v(id) { const el=document.getElementById(id); return el ? el.value.trim() : ''; }
+  const nomeC=v(uid+'_nome'), tel=v(uid+'_tel');
+  if(!nomeC || !tel) { alert('Preencha seu nome e WhatsApp!'); return; }
+  const data=v(uid+'_data'), hora=v(uid+'_hora'), orig=v(uid+'_origem'), dest=v(uid+'_destino'), obs=v(uid+'_obs');
+  let msg = '🚗 *SOLICITAÇÃO — ConduzRJ*\n\n';
+  msg += '📋 *Serviço:* '+nome+'\n';
+  msg += '💰 *Valor:* '+preco+'\n';
+  msg += '👤 *Nome:* '+nomeC+'\n';
+  msg += '📱 *WhatsApp:* '+tel+'\n';
+  if(data) msg += '📅 *Data:* '+data+'\n';
+  if(hora) msg += '⏰ *Horário:* '+hora+'\n';
+  if(orig) msg += '📍 *Origem:* '+orig+'\n';
+  if(dest) msg += '🏁 *Destino:* '+dest+'\n';
+  if(obs)  msg += '📝 *Obs:* '+obs+'\n';
+  window.open('https://wa.me/55?text='+encodeURIComponent(msg), '_blank');
+}
+
+function fecharModalServico() {
+  document.getElementById('modal-servico').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function calcularPrecoModal() {
+  const servico = document.getElementById('ms-servico-nome').textContent.toLowerCase();
+  const km = parseFloat(document.getElementById('ms-km').value) || 0;
+  const hora = document.getElementById('ms-hora').value;
+  const div = document.getElementById('ms-calc');
+  const valEl = document.getElementById('ms-calc-valor');
+  const detEl = document.getElementById('ms-calc-detalhe');
+
+  let total = 0;
+  let detalhe = '';
+  let noturno = false;
+
+  if(hora){
+    const h = parseInt(hora.split(':')[0]);
+    if(h >= 22 || h < 6) noturno = true;
+  }
+
+  if(servico.includes('avulsa') || servico.includes('corrida')){
+    const base = km * 5;
+    const minimo = 40;
+    total = Math.max(base, minimo);
+    if(noturno) total = total * 1.2;
+    detalhe = km > 0 ? km+'km × R$5,00'+(noturno?' + 20% noturno':'')+(total===minimo?' (mínimo aplicado)':'') : 'Mínimo R$40,00';
+  } else if(servico.includes('diária') || servico.includes('diaria') || servico.includes('8h')){
+    total = 500;
+    if(km > 100){ const extra=(km-100)*5.50; total+=extra; detalhe='R$500,00 base + '+(km-100)+'km extra × R$5,50'; }
+    else { detalhe='Inclui até 100km'+(km>0?' · '+km+'km utilizados':''); }
+  } else if(servico.includes('meio') || servico.includes('4h')){
+    total = 250;
+    if(km > 50){ const extra=(km-50)*5.50; total+=extra; detalhe='R$250,00 base + '+(km-50)+'km extra × R$5,50'; }
+    else { detalhe='Inclui até 50km'+(km>0?' · '+km+'km utilizados':''); }
+  } else if(servico.includes('aeroporto') || servico.includes('transfer')){
+    total = 120; detalhe = 'Preço fixo · GIG ou SDU';
+  } else if(servico.includes('turismo')){
+    total = 350; detalhe = 'Roteiro personalizado pelo Rio';
+  } else {
+    div.style.display = 'none'; return;
+  }
+
+  valEl.textContent = 'R$ ' + total.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  detEl.textContent = detalhe;
+  div.style.display = 'block';
+}
+
+async function enviarPedidoModal() {
+  const nome = document.getElementById('ms-nome').value.trim();
+  const tel = document.getElementById('ms-tel').value.trim();
+  const servico = document.getElementById('ms-servico-nome').textContent;
+  const data = document.getElementById('ms-data').value;
+  const hora = document.getElementById('ms-hora').value;
+  
+  if(!nome||!tel||!data||!hora){
+    alert('Por favor, preencha todos os campos obrigatórios (*)');
+    return;
+  }
+
+  const btn = document.getElementById('ms-btn-enviar');
+  btn.textContent = 'Enviando...';
+  btn.disabled = true;
+
+  try {
+    const r = await fetch('/api/pedido', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        nome, telefone:tel, servico, data, hora,
+        origem: document.getElementById('ms-origem').value,
+        destino: document.getElementById('ms-destino').value,
+        observacoes: document.getElementById('ms-obs').value,
+        km: document.getElementById('ms-km').value,
+        valorEstimado: document.getElementById('ms-calc-valor').textContent,
+        som: (document.querySelector('#modal-servico input[name="ms-som"]:checked')||{}).value||'',
+        musica: (document.querySelector('#modal-servico input[name="ms-musica"]:checked')||{}).value||'',
+        artista: document.getElementById('ms-artista').value||'',
+        ar: (document.querySelector('#modal-servico input[name="ms-ar"]:checked')||{}).value||'',
+        agua: (document.querySelector('#modal-servico input[name="ms-agua"]:checked')||{}).value||''
+      })
+    });
+    const d = await r.json();
+    if(d.sucesso){
+      fecharModalServico();
+      window.open(d.whatsapp, '_blank');
+    } else {
+      alert(d.erro || 'Erro ao enviar pedido');
+    }
+  } catch(e) {
+    alert('Erro de conexão. Tente novamente.');
+  }
+  btn.textContent = 'Confirmar e abrir WhatsApp';
+  btn.disabled = false;
 }
 
 const diasNomes = {segunda:'Segunda',terca:'Terça',quarta:'Quarta',quinta:'Quinta',sexta:'Sexta',sabado:'Sábado',domingo:'Domingo'};
@@ -568,7 +871,14 @@ async function enviarPedido() {
         nome, telefone:tel, servico, data, hora,
         origem: document.getElementById('f-origem').value,
         destino: document.getElementById('f-destino').value,
-        observacoes: document.getElementById('f-obs').value
+        observacoes: document.getElementById('f-obs').value,
+        km: document.getElementById('f-km').value,
+        valorEstimado: document.getElementById('calc-valor').textContent,
+        som: (document.querySelector('input[name="som"]:checked')||{}).value||'',
+        musica: (document.querySelector('input[name="musica"]:checked')||{}).value||'',
+        artista: (document.getElementById('f-artista')||{}).value||'',
+        ar: (document.querySelector('input[name="ar"]:checked')||{}).value||'',
+        agua: (document.querySelector('input[name="agua"]:checked')||{}).value||''
       })
     });
     const d = await r.json();
@@ -591,6 +901,7 @@ async function enviarPedido() {
 function limparForm() {
   ['f-nome','f-tel','f-data','f-hora','f-origem','f-destino','f-obs'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-servico').value = '';
+  document.getElementById('preco-dinamico').style.display='none';
 }
 
 function fecharModal() {
@@ -672,5 +983,230 @@ const statsObserver = new IntersectionObserver((entries)=>{
 },{threshold:0.5});
 document.querySelectorAll('[data-valor]').forEach(el=>statsObserver.observe(el));
 </script>
+
+<script id="preco-dinamico-js">
+document.getElementById('f-servico').addEventListener('change', function(){
+  const sel = this;
+  const opcao = sel.options[sel.selectedIndex];
+  const texto = opcao ? opcao.text : '';
+  const div = document.getElementById('preco-dinamico');
+  const val = document.getElementById('preco-valor');
+  const match = texto.match(/R\$\s*[\d.,]+/);
+  if(match && sel.value){
+    val.textContent = match[0];
+    div.style.display = 'block';
+  } else if(sel.value && texto.includes('consultar')){
+    val.textContent = 'A consultar';
+    div.style.display = 'block';
+  } else {
+    div.style.display = 'none';
+  }
+});
+</script>
+
+<script id="calculador-js">
+// Mostrar/esconder opcoes de musica
+document.querySelectorAll('input[name="som"]').forEach(r => {
+  r.addEventListener('change', function(){
+    document.getElementById('opcoes-musica').style.display = this.value === 'musica' ? 'block' : 'none';
+  });
+});
+
+// Mostrar campo artista
+document.addEventListener('change', function(e){
+  if(e.target.name === 'musica'){
+    document.getElementById('artista-wrap').style.display = e.target.value === 'Outro' ? 'block' : 'none';
+  }
+});
+
+// Calculador de preco
+function calcularPreco(){
+  const servico = document.getElementById('f-servico').value.toLowerCase();
+  const km = parseFloat(document.getElementById('f-km').value) || 0;
+  const hora = document.getElementById('f-hora').value;
+  const div = document.getElementById('calc-resultado');
+  const valEl = document.getElementById('calc-valor');
+  const detEl = document.getElementById('calc-detalhe');
+
+  let total = 0;
+  let detalhe = '';
+  let noturno = false;
+
+  if(hora){
+    const h = parseInt(hora.split(':')[0]);
+    if(h >= 22 || h < 6) noturno = true;
+  }
+
+  if(servico.includes('avulsa') || servico.includes('corrida')){
+    const base = km * 5;
+    const minimo = 40;
+    total = Math.max(base, minimo);
+    if(noturno) total = total * 1.2;
+    detalhe = km > 0 ? `${km}km × R$5,00${noturno?' + 20% noturno':''}${total===minimo?' (mínimo aplicado)':''}` : 'Mínimo R$40,00';
+  }
+  else if(servico.includes('diária') || servico.includes('diaria') || servico.includes('8h')){
+    total = 500;
+    if(km > 100){
+      const extra = (km - 100) * 5.50;
+      total += extra;
+      detalhe = `R$500,00 base + ${km-100}km extra × R$5,50 = R$${extra.toFixed(2)}`;
+    } else {
+      detalhe = `Inclui até 100km · ${km > 0 ? km+'km utilizados' : 'Km não informado'}`;
+    }
+  }
+  else if(servico.includes('meio') || servico.includes('4h')){
+    total = 250;
+    if(km > 50){
+      const extra = (km - 50) * 5.50;
+      total += extra;
+      detalhe = `R$250,00 base + ${km-50}km extra × R$5,50 = R$${extra.toFixed(2)}`;
+    } else {
+      detalhe = `Inclui até 50km · ${km > 0 ? km+'km utilizados' : 'Km não informado'}`;
+    }
+  }
+  else if(servico.includes('aeroporto') || servico.includes('transfer')){
+    total = 120;
+    detalhe = 'Preço fixo · GIG ou SDU';
+  }
+  else if(servico.includes('turismo')){
+    total = 350;
+    detalhe = 'Roteiro personalizado pelo Rio';
+  }
+  else {
+    div.style.display = 'none';
+    return;
+  }
+
+  valEl.textContent = 'R$ ' + total.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  detEl.textContent = detalhe;
+  div.style.display = 'block';
+}
+
+// Recalcular ao mudar servico ou hora
+document.getElementById('f-servico').addEventListener('change', calcularPreco);
+document.getElementById('f-hora').addEventListener('change', calcularPreco);
+</script>
+
+<div id="modal-servico" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:500;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+<div style="position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px;box-sizing:border-box">
+  <div style="background:#fff;border-radius:20px;max-width:480px;margin:0 auto;overflow:hidden">
+    
+    <div style="background:#111;padding:20px 24px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px">Agendar serviço</div>
+        <div style="font-size:18px;font-weight:700;color:#fff" id="ms-servico-nome"></div>
+        <div style="font-size:16px;font-weight:700;color:#c9a84c" id="ms-servico-preco"></div>
+      </div>
+      <button onclick="fecharModalServico()" style="background:rgba(255,255,255,0.1);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer">×</button>
+    </div>
+
+    <div style="padding:24px">
+      
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:12px;font-weight:600;color:#888;margin-bottom:6px;text-transform:uppercase">Seu nome *</label>
+        <input id="ms-nome" type="text" placeholder="Nome completo" style="width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;box-sizing:border-box">
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:12px;font-weight:600;color:#888;margin-bottom:6px;text-transform:uppercase">WhatsApp *</label>
+        <input id="ms-tel" type="tel" placeholder="(21) 99999-9999" style="width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;box-sizing:border-box">
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#888;margin-bottom:6px;text-transform:uppercase">Data *</label>
+          <input id="ms-data" type="date" style="width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;box-sizing:border-box">
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#888;margin-bottom:6px;text-transform:uppercase">Horário *</label>
+          <input id="ms-hora" type="time" oninput="calcularPrecoModal()" style="width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;box-sizing:border-box">
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:12px;font-weight:600;color:#888;margin-bottom:6px;text-transform:uppercase">Origem</label>
+        <input id="ms-origem" type="text" placeholder="Endereço de partida" style="width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;box-sizing:border-box">
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:12px;font-weight:600;color:#888;margin-bottom:6px;text-transform:uppercase">Destino</label>
+        <input id="ms-destino" type="text" placeholder="Endereço de destino" style="width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;box-sizing:border-box">
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:12px;font-weight:600;color:#888;margin-bottom:6px;text-transform:uppercase">KM estimado</label>
+        <input id="ms-km" type="number" placeholder="Ex: 25" min="0" oninput="calcularPrecoModal()" style="width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;box-sizing:border-box">
+      </div>
+
+      <div id="ms-calc" style="display:none;margin:16px 0;padding:16px;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);border-radius:12px;border-left:4px solid #c9a84c">
+        <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Estimativa de valor</div>
+        <div style="font-size:28px;font-weight:800;color:#c9a84c" id="ms-calc-valor">R$ 0,00</div>
+        <div style="font-size:12px;color:#666;margin-top:4px" id="ms-calc-detalhe"></div>
+        <div style="font-size:11px;color:#555;margin-top:8px">* Valor estimado · Confirmado via WhatsApp</div>
+      </div>
+
+      <div style="background:#f9f9f9;border-radius:12px;padding:16px;border:1px solid #eee;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;margin-bottom:12px">🎵 Preferências da viagem</div>
+        
+        <div style="margin-bottom:12px">
+          <div style="font-size:13px;color:#555;margin-bottom:8px">Ambiente sonoro</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:13px">
+              <input type="radio" name="ms-som" value="silencio" onchange="document.getElementById('ms-opcoes-musica').style.display='none'"> 🔇 Silêncio
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;padding:10px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:13px">
+              <input type="radio" name="ms-som" value="musica" onchange="document.getElementById('ms-opcoes-musica').style.display='block'"> 🎵 Música
+            </label>
+          </div>
+        </div>
+
+        <div id="ms-opcoes-musica" style="display:none;margin-bottom:12px">
+          <div style="font-size:13px;color:#555;margin-bottom:8px">Estilo musical</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <label style="display:flex;align-items:center;gap:6px;padding:8px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:12px"><input type="radio" name="ms-musica" value="Gospel"> ✝️ Gospel</label>
+            <label style="display:flex;align-items:center;gap:6px;padding:8px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:12px"><input type="radio" name="ms-musica" value="Funk"> 🎤 Funk</label>
+            <label style="display:flex;align-items:center;gap:6px;padding:8px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:12px"><input type="radio" name="ms-musica" value="Pagode"> 🥁 Pagode</label>
+            <label style="display:flex;align-items:center;gap:6px;padding:8px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:12px"><input type="radio" name="ms-musica" value="Sertanejo"> 🤠 Sertanejo</label>
+            <label style="display:flex;align-items:center;gap:6px;padding:8px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:12px"><input type="radio" name="ms-musica" value="Pop"> 🎧 Pop</label>
+            <label style="display:flex;align-items:center;gap:6px;padding:8px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:12px"><input type="radio" name="ms-musica" value="Classica"> 🎻 Clássica</label>
+            <label style="display:flex;align-items:center;gap:6px;padding:8px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:12px"><input type="radio" name="ms-musica" value="Motorista"> 🎲 Motorista</label>
+            <label style="display:flex;align-items:center;gap:6px;padding:8px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:12px"><input type="radio" name="ms-musica" value="Outro" onchange="document.getElementById('ms-artista-wrap').style.display='block'"> ✏️ Outro</label>
+          </div>
+          <div id="ms-artista-wrap" style="display:none;margin-top:8px">
+            <input type="text" id="ms-artista" placeholder="Nome do artista ou banda" style="width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;box-sizing:border-box">
+          </div>
+        </div>
+
+        <div style="margin-bottom:12px">
+          <div style="font-size:13px;color:#555;margin-bottom:8px">❄️ Ar condicionado</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+            <label style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:12px"><input type="radio" name="ms-ar" value="Frio"> ❄️ Frio</label>
+            <label style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:12px"><input type="radio" name="ms-ar" value="Normal"> 😊 Normal</label>
+            <label style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:12px"><input type="radio" name="ms-ar" value="Desligado"> 🌬️ Desl.</label>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size:13px;color:#555;margin-bottom:8px">💧 Água mineral</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <label style="display:flex;align-items:center;gap:6px;padding:8px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:12px"><input type="radio" name="ms-agua" value="Sim"> 💧 Sim</label>
+            <label style="display:flex;align-items:center;gap:6px;padding:8px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:12px"><input type="radio" name="ms-agua" value="Nao"> 🚫 Não</label>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <label style="display:block;font-size:12px;font-weight:600;color:#888;margin-bottom:6px;text-transform:uppercase">Observações</label>
+        <textarea id="ms-obs" placeholder="Alguma informação adicional?" style="width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;min-height:80px;box-sizing:border-box;resize:vertical"></textarea>
+      </div>
+
+      <button id="ms-btn-enviar" onclick="enviarPedidoModal()" style="width:100%;background:#111;color:#fff;border:none;padding:16px;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer">
+        Confirmar e abrir WhatsApp 📲
+      </button>
+      <p style="text-align:center;font-size:12px;color:#999;margin-top:8px">Você será redirecionado ao WhatsApp para confirmar</p>
+    </div>
+  </div>
+</div>
+</div>
 </body>
 </html>
