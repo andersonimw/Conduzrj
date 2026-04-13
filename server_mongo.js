@@ -92,7 +92,38 @@ app.post('/api/pedido', async (req, res) => {
   await saveDB('pedidos', pedidos);
   const config = db.config || {};
   const tel = (config.telefone||'').replace(/\D/g, '');
-  const msg = `Olá! Sou ${nome}. Gostaria de solicitar ${servico} para o dia ${data} às ${hora}.${origem?' Origem: '+origem:''}${destino?' Destino: '+destino:''}${observacoes?' Obs: '+observacoes:''}`;
+  const km = req.body.km || '';
+  const valorEstimado = req.body.valorEstimado || '';
+  const som = req.body.som || '';
+  const musica = req.body.musica || '';
+  const artista = req.body.artista || '';
+  const ar = req.body.ar || '';
+  const agua = req.body.agua || '';
+  const passageiros = req.body.passageiros || '1';
+  const bagagens = req.body.bagagens || '';
+  const pet = req.body.pet || '';
+
+  const msg = `🚗 *NOVA SOLICITAÇÃO — ConduzRJ*
+
+👤 *Cliente:* ${nome}
+📱 *WhatsApp:* ${tel}
+🛎️ *Serviço:* ${servico}
+📅 *Data:* ${data}
+⏰ *Horário:* ${hora}
+${km ? '📍 *KM estimado:* '+km+'km' : ''}
+${valorEstimado ? '💰 *Valor estimado:* '+valorEstimado : ''}
+${origem ? '🟢 *Origem:* '+origem : ''}
+${destino ? '🔴 *Destino:* '+destino : ''}
+
+🎵 *Preferências da viagem:*
+${som === 'silencio' ? '🔇 Viagem em silêncio' : som === 'musica' ? '🎵 Com música: '+(musica === 'Outro' ? artista : musica) : ''}
+${ar ? '❄️ Ar condicionado: '+ar : ''}
+${agua ? '💧 Água mineral: '+agua : ''}
+${pet ? '🐾 Pet: '+pet : ''}
+
+👥 *Passageiros:* ${passageiros}
+${bagagens && bagagens !== 'Nenhuma' ? '🧳 *Bagagens:* '+bagagens : ''}
+${observacoes ? '📝 *Obs:* '+observacoes : ''}`;
   res.json({ sucesso: true, whatsapp: `https://wa.me/55${tel}?text=${encodeURIComponent(msg)}` });
 });
 

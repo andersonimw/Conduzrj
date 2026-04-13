@@ -808,7 +808,10 @@ async function enviarPedidoModal() {
         musica: (document.querySelector('#modal-servico input[name="ms-musica"]:checked')||{}).value||'',
         artista: document.getElementById('ms-artista').value||'',
         ar: (document.querySelector('#modal-servico input[name="ms-ar"]:checked')||{}).value||'',
-        agua: (document.querySelector('#modal-servico input[name="ms-agua"]:checked')||{}).value||''
+        agua: (document.querySelector('#modal-servico input[name="ms-agua"]:checked')||{}).value||'',
+        passageiros: document.getElementById('ms-passageiros').value||'1',
+        bagagens: document.getElementById('ms-bagagens').value||'Nenhuma',
+        pet: (document.querySelector('#modal-servico input[name="ms-pet"]:checked')||{}).value||''
       })
     });
     const d = await r.json();
@@ -1170,6 +1173,28 @@ document.getElementById('f-hora').addEventListener('change', calcularPreco);
       <div style="margin-bottom:14px">
         <label style="display:block;font-size:12px;font-weight:600;color:#888;margin-bottom:6px;text-transform:uppercase">KM estimado</label>
         <input id="ms-km" type="number" placeholder="Ex: 25" min="0" oninput="calcularPrecoModal()" style="width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;box-sizing:border-box">
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#888;margin-bottom:6px;text-transform:uppercase">👥 Passageiros</label>
+          <select id="ms-passageiros" style="width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;box-sizing:border-box;background:#fff">
+            <option value="1">1 passageiro</option>
+            <option value="2">2 passageiros</option>
+            <option value="3">3 passageiros</option>
+            <option value="4">4 passageiros</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#888;margin-bottom:6px;text-transform:uppercase">🧳 Bagagens</label>
+          <select id="ms-bagagens" style="width:100%;padding:12px 16px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;box-sizing:border-box;background:#fff">
+            <option value="Nenhuma">Nenhuma</option>
+            <option value="1 bagagem">1 bagagem</option>
+            <option value="2 bagagens">2 bagagens</option>
+            <option value="3 bagagens">3 bagagens</option>
+            <option value="4+ bagagens">4+ bagagens</option>
+          </select>
+        </div>
       </div>
 
       <div id="ms-calc" style="display:none;margin:16px 0;padding:16px;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);border-radius:12px;border-left:4px solid #c9a84c">
