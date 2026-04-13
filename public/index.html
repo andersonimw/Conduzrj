@@ -159,6 +159,22 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
   .form-row{grid-template-columns:1fr}
   .hero-stats{gap:24px}
 }
+
+.hero{position:relative;min-height:100vh;overflow:hidden;display:flex;flex-direction:column;padding:0;background:none;align-items:stretch;justify-content:flex-start;}
+.hero::before{display:none;}
+.slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.2s ease;z-index:0;}
+.slide.active{opacity:1;}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.3) 0%,rgba(0,0,0,0.65) 55%,rgba(0,0,0,0.92) 100%);z-index:1;}
+.hero-inner{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:0 24px 40px;margin-top:80px;}
+.hero-inner h1{font-size:clamp(36px,6vw,72px);font-weight:800;color:#fff;line-height:1.15;margin-bottom:20px;text-align:left;}
+.hero-inner p{font-size:15px;color:rgba(255,255,255,0.68);max-width:320px;margin:0 0 26px;line-height:1.65;text-align:left;}
+.hero-inner .hero-badge{margin-bottom:18px;}
+.hero-inner .hero-btns{justify-content:flex-start;}
+.hero-inner .hero-stats{justify-content:flex-start;margin-top:28px;gap:16px;}
+#hero-dots{position:absolute;bottom:14px;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:3;}
+#hero-label{position:absolute;bottom:18px;right:18px;z-index:3;font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:0.8px;}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.35);cursor:pointer;transition:background 0.3s,transform 0.3s;border:none;}
+.dot.active{background:#C9A84C;transform:scale(1.3);}
 </style>
 </head>
 <body>
@@ -196,9 +212,14 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
 </div>
 
 <section class="hero" id="inicio">
-  <div>
+  <div class="slide active" style="background-image:url('https://images.unsplash.com/photo-1516306580123-e6e52b1b7b5f?w=900&q=80')"></div>
+  <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=900&q=80')"></div>
+  <div class="slide" style="background-image:url('https://images.pexels.com/photos/12720783/pexels-photo-12720783.jpeg?auto=compress&cs=tinysrgb&w=1280')"></div>
+  <div class="slide" style="background-image:url('https://images.pexels.com/photos/29417624/pexels-photo-29417624.jpeg?auto=compress&cs=tinysrgb&w=1280')"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-inner">
     <div class="hero-badge">Rio de Janeiro · Motorista Particular</div>
-    <h1>Seu motorista<br>de <span>confiança</span><br>no Rio</h1>
+    <h1>Seu motorista de <span>confiança</span> no Rio</h1>
     <p>Pontualidade, discrição e conforto em cada viagem. Agende com antecedência e tenha um motorista fixo e profissional.</p>
     <div class="hero-btns">
       <a href="#agendar" class="btn-primary" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center">Agendar agora</a>
@@ -211,7 +232,11 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
       <div class="stat"><div class="stat-num">RJ</div><div class="stat-label">Toda a cidade</div></div>
     </div>
   </div>
+  <div class="slide" style="background-image:url('https://images.pexels.com/photos/34692552/pexels-photo-34692552.jpeg?auto=compress&cs=tinysrgb&w=1280')"></div>
+  <div id="hero-dots"></div>
+  <div id="hero-label"></div>
 </section>
+
 
 <section id="servicos">
   <div class="container">
@@ -542,6 +567,32 @@ const hoje = new Date().toISOString().split('T')[0];
 document.getElementById('f-data').min = hoje;
 
 carregarDados();
+</script>
+
+<script>
+(function() {
+  var slides = document.querySelectorAll('#inicio .slide');
+  var labels = ['Cristo Redentor','Pao de Acucar','Ipanema','Copacabana','Centro do Rio'];
+  var dotsEl = document.getElementById('hero-dots');
+  var labelEl = document.getElementById('hero-label');
+  var current = 0;
+  slides.forEach(function(_, i) {
+    var d = document.createElement('button');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = function() { goTo(i); };
+    dotsEl.appendChild(d);
+  });
+  if(labelEl) labelEl.textContent = labels[0];
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dotsEl.children[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    dotsEl.children[current].classList.add('active');
+    if(labelEl) labelEl.textContent = labels[current];
+  }
+  setInterval(function() { goTo((current + 1) % slides.length); }, 4000);
+})();
 </script>
 </body>
 </html>
