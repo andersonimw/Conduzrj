@@ -118,6 +118,66 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   .form-2col{grid-template-columns:1fr}
 }
 </style>
+<script>
+// ALERTA SONORO DE NOVO PEDIDO
+let ultimoTotalPedidos = null;
+let audioCtx = null;
+
+function tocarAlerta() {
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // Toca 3 bipes
+    [0, 0.3, 0.6].forEach(t => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.frequency.value = 880;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.5, audioCtx.currentTime + t);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + t + 0.25);
+      osc.start(audioCtx.currentTime + t);
+      osc.stop(audioCtx.currentTime + t + 0.25);
+    });
+  } catch(e) {}
+}
+
+function mostrarNotificacao(nome, servico) {
+  // Notificacao visual no topo
+  const div = document.createElement('div');
+  div.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;background:#22c55a;color:#fff;padding:16px 20px;border-radius:14px;font-size:14px;font-weight:600;box-shadow:0 8px 32px rgba(0,0,0,0.4);animation:slideIn 0.3s ease;max-width:300px';
+  div.innerHTML = '🔔 <strong>Novo pedido!</strong><br>' + nome + ' — ' + servico;
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), 6000);
+}
+
+async function verificarNovoPedido() {
+  try {
+    const r = await fetch('/api/admin/pedidos');
+    if (!r.ok) return;
+    const pedidos = await r.json();
+    const total = pedidos.length;
+    if (ultimoTotalPedidos === null) {
+      ultimoTotalPedidos = total;
+      return;
+    }
+    if (total > ultimoTotalPedidos) {
+      const novo = pedidos[pedidos.length - 1];
+      tocarAlerta();
+      mostrarNotificacao(novo.nome || 'Cliente', novo.servico || 'Serviço');
+      ultimoTotalPedidos = total;
+      carregarPedidos();
+    }
+  } catch(e) {}
+}
+
+// Inicia monitoramento a cada 30 segundos
+function iniciarMonitoramento() {
+  ultimoTotalPedidos = null;
+  setInterval(verificarNovoPedido, 30000);
+  console.log('Monitoramento de pedidos ativo!');
+}
+</script>
 </head>
 <body>
 
@@ -323,6 +383,7 @@ async function fazerLogout() {
 
 async function carregarTudo() {
   await Promise.all([carregarPedidos(), carregarConfigAdmin()]);
+  iniciarMonitoramento();
 }
 
 async function carregarPedidos() {
@@ -339,12 +400,65 @@ async function carregarPedidos() {
     <div class="metrica"><div class="metrica-label">Concluídos</div><div class="metrica-num" style="color:#818cf8">${concluidos}</div><div class="metrica-desc">realizados</div></div>`;
   const tb = document.getElementById('tabelaPedidos');
   if (!pedidos.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--suave)">Nenhum pedido ainda</td></tr>'; return; }
-  tb.innerHTML = pedidos.map(p => `
-    <tr>
-      <td><strong>${p.nome}</strong>${p.observacoes?`<br><small style="color:var(--suave)">${p.observacoes}</small>`:''}</td>
-      <td>${p.servico}</td>
-      <td>${formatarData(p.data)}<br><small style="color:var(--suave)">${p.hora}</small></td>
-      <td><a href="https://wa.me/55${p.telefone.replace(/\D/g,'')}" target="_blank" style="color:var(--dourado)">${p.telefone}</a>${p.origem?`<br><small style="color:var(--suave)">De: ${p.origem}</small>`:''}</td>
+  tb.innerHTML = pedidos.map(p => {
+    const tel = p.telefone.replace(/\D/g,'');
+    const msgConfirmacao = encodeURIComponent(
+      '✅ *Agendamento Confirmado — ConduzRJ*\n\n' +
+      'Olá, *' + p.nome + '*! 😊\n\n' +
+      'Seu agendamento foi confirmado!\n\n' +
+      '🚗 *Serviço:* ' + p.servico + '\n' +
+      '📅 *Data:* ' + p.data + '\n' +
+      '⏰ *Horário:* ' + p.hora + '\n' +
+      (p.origem ? '🟢 *Origem:* ' + p.origem + '\n' : '') +
+      (p.destino ? '🔴 *Destino:* ' + p.destino + '\n' : '') +
+      (p.valorEstimado ? '💰 *Valor:* ' + p.valorEstimado + '\n' : '') +
+      '\n📌 Cancelamento gratuito até 12h antes.\n' +
+      '\nEstarei no local 10 minutos antes! 🕐\n' +
+      '\nQualquer dúvida é só chamar! 😊\n' +
+      '*Anderson — ConduzRJ* 🚗'
+    );
+    const msgLembrete = encodeURIComponent(
+      '🚗 *Lembrete de Viagem — ConduzRJ*\n\n' +
+      'Olá, *' + p.nome + '*! 😊\n\n' +
+      'Passando para lembrar da sua viagem' +
+      (p.data ? ' em *' + p.data + '*' : '') +
+      (p.hora ? ' às *' + p.hora + '*' : '') + '!\n\n' +
+      (p.origem ? '🟢 *Saída:* ' + p.origem + '\n' : '') +
+      (p.destino ? '🔴 *Destino:* ' + p.destino + '\n' : '') +
+      (p.voo ? '✈️ *Voo:* ' + p.voo + '\n' : '') +
+      '\nEstarei lá 10 minutos antes do horário! 🕐\n' +
+      '\nQualquer dúvida é só chamar! 👋\n' +
+      '*Anderson — ConduzRJ* 🚗'
+    );
+    return `<tr>
+      <td>
+        <strong>${p.nome}</strong>
+        <br><small style="color:var(--suave)">${p.telefone}</small>
+        ${p.passageiros ? `<br><small style="color:#888">👥 ${p.passageiros} passageiro(s)</small>` : ''}
+        ${p.bagagens && p.bagagens !== 'Nenhuma' ? `<br><small style="color:#888">🧳 ${p.bagagens}</small>` : ''}
+        ${p.pet ? `<br><small style="color:#888">🐾 Pet: ${p.pet}</small>` : ''}
+      </td>
+      <td>
+        ${p.servico}
+        ${p.voo ? `<br><small style="color:#888">✈️ Voo: ${p.voo}</small>` : ''}
+      </td>
+      <td>
+        ${formatarData(p.data)}<br>
+        <small style="color:var(--suave)">${p.hora}</small>
+      </td>
+      <td>
+        ${p.origem ? `🟢 ${p.origem}` : ''}
+        ${p.destino ? `<br>🔴 ${p.destino}` : ''}
+        ${p.parada ? `<br><small style="color:#888">🛑 ${p.parada}</small>` : ''}
+        ${p.km ? `<br><small style="color:#888">📍 ${p.km}km</small>` : ''}
+        ${p.valorEstimado ? `<br><small style="color:#c9a84c">💰 ${p.valorEstimado}</small>` : ''}
+      </td>
+      <td>
+        ${p.som ? `<small>🎵 ${p.som === 'musica' ? (p.musica || 'Música') : 'Silêncio'}</small><br>` : ''}
+        ${p.ar ? `<small>❄️ ${p.ar}</small><br>` : ''}
+        ${p.agua ? `<small>💧 ${p.agua}</small><br>` : ''}
+        ${p.observacoes ? `<small style="color:#888">📝 ${p.observacoes}</small>` : ''}
+      </td>
       <td>
         <select class="status-sel" onchange="atualizarStatus(${p.id},this.value)">
           <option value="pendente" ${p.status==='pendente'?'selected':''}>Pendente</option>
@@ -352,8 +466,18 @@ async function carregarPedidos() {
           <option value="concluido" ${p.status==='concluido'?'selected':''}>Concluído</option>
           <option value="cancelado" ${p.status==='cancelado'?'selected':''}>Cancelado</option>
         </select>
+        <br>
+        <a href="https://wa.me/55${tel}?text=${msgConfirmacao}" target="_blank" 
+           style="display:inline-block;margin-top:6px;padding:6px 10px;background:#22c55a;color:#fff;border-radius:8px;font-size:11px;text-decoration:none;font-weight:600">
+          ✅ Confirmar
+        </a>
+        <a href="https://wa.me/55${tel}?text=${msgLembrete}" target="_blank"
+           style="display:inline-block;margin-top:4px;padding:6px 10px;background:#c9a84c;color:#fff;border-radius:8px;font-size:11px;text-decoration:none;font-weight:600">
+          🔔 Lembrete
+        </a>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 async function atualizarStatus(id, status) {
