@@ -100,6 +100,7 @@ app.post('/api/pedido', async (req, res) => {
   const ar = req.body.ar || '';
   const agua = req.body.agua || '';
   const passageiros = req.body.passageiros || '1';
+  const veiculo = req.body.veiculo || '';
   const parada = req.body.parada || '';
   const voo = req.body.voo || '';
   const bagagens = req.body.bagagens || '';
@@ -116,6 +117,7 @@ ${km ? '📍 *KM estimado:* '+km+'km' : ''}
 ${valorEstimado ? '💰 *Valor estimado:* '+valorEstimado : ''}
 ${origem ? '🟢 *Origem:* '+origem : ''}
 ${destino ? '🔴 *Destino:* '+destino : ''}
+${veiculo ? '🚗 *Veículo preferido:* '+veiculo : ''}
 ${parada ? '🛑 *Parada adicional:* '+parada : ''}
 ${voo ? '✈️ *Número do voo:* '+voo : ''}
 
