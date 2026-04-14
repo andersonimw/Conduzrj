@@ -239,10 +239,12 @@ app.get("/api/verificar-horario", async (req, res) => {
   if (!data || !hora) return res.json({ disponivel: true });
   const db = await getDB();
   const pedidos = db.pedidos || [];
-  const conflito = pedidos.find(p =>
-    p.data === data && p.hora === hora &&
-    p.status !== "cancelado"
-  );
+  const agora = new Date();
+  const conflito = pedidos.find(p => {
+    if (p.data !== data || p.hora !== hora || p.status === "cancelado") return false;
+    const dataHora = new Date(p.data + "T" + p.hora);
+    return dataHora > agora;
+  });
   res.json({ disponivel: !conflito });
 });
 app.listen(PORT, () => {
