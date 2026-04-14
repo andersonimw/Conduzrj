@@ -133,6 +133,11 @@ ${observacoes ? '📝 *Obs:* '+observacoes : ''}`;
   res.json({ sucesso: true, whatsapp: `https://wa.me/55${tel}?text=${encodeURIComponent(msg)}` });
 });
 
+// Rota de ping leve para cronjob
+app.get('/ping', (req, res) => {
+  res.send('ok');
+});
+
 // Admin - login
 app.post('/api/admin/login', async (req, res) => {
   const db = await getDB();
