@@ -232,6 +232,19 @@ app.get('/{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+
+// Verificar disponibilidade de horario
+app.get("/api/verificar-horario", async (req, res) => {
+  const { data, hora } = req.query;
+  if (!data || !hora) return res.json({ disponivel: true });
+  const db = await getDB();
+  const pedidos = db.pedidos || [];
+  const conflito = pedidos.find(p =>
+    p.data === data && p.hora === hora &&
+    p.status !== "cancelado"
+  );
+  res.json({ disponivel: !conflito });
+});
 app.listen(PORT, () => {
   console.log(`✅ Conduz RJ rodando em http://localhost:${PORT}`);
   console.log(`📱 Painel admin em http://localhost:${PORT}/admin`);
