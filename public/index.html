@@ -1364,5 +1364,22 @@ async function verificarHorarioModal(){
   </div>
 </div>
 </div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-messaging-compat.js"></script>
+<script>
+firebase.initializeApp({apiKey:"AIzaSyCKCfAza8WuqZNEj5y4nV2ZU9-2OysosDg",messagingSenderId:"357584563202",appId:"1:357584563202:web:1f6d9047f93b5af03d0b1b"});
+const messaging=firebase.messaging();
+function pedirPermissaoNotificacao(){
+  Notification.requestPermission().then(function(perm){
+    if(perm==="granted"){
+      messaging.getToken({vapidKey:"BJEIW9Nyu-vZFxzwJ6hoe3QTRpI_JS_WEPhA2-PFoFA54n-GZ96WrVsDVtAEjB6Q-qOM5WscLwwsGnpWk-nQJX4"}).then(function(token){
+        fetch("/api/salvar-token",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:token})});
+      });
+    }
+  });
+}
+pedirPermissaoNotificacao();
+</script>
 </body>
 </html>

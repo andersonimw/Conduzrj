@@ -233,6 +233,28 @@ app.get('/{*path}', (req, res) => {
 });
 
 
+
+// Salvar token de notificacao
+let tokensNotificacao = [];
+app.post("/api/salvar-token", (req, res) => {
+  const { token } = req.body;
+  if (token && !tokensNotificacao.includes(token)) tokensNotificacao.push(token);
+  res.json({ sucesso: true });
+});
+
+// Enviar notificacao push
+async function enviarNotificacao(titulo, corpo) {
+  if (tokensNotificacao.length === 0) return;
+  const axios = require("axios");
+  const { GoogleAuth } = require("google-auth-library");
+  try {
+    for (const token of tokensNotificacao) {
+      await axios.post("https://fcm.googleapis.com/v1/projects/conduzrj/messages:send", {
+        message: { token, notification: { title: titulo, body: corpo } }
+      });
+    }
+  } catch(e) { console.log("Erro notificacao:", e.message); }
+}
 // Verificar disponibilidade de horario
 app.get("/api/verificar-horario", async (req, res) => {
   const { data, hora } = req.query;
