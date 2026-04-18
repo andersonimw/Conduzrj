@@ -205,7 +205,7 @@ app.put('/api/admin/pedido/:id', authAdmin, async (req, res) => {
           `
         });
       } catch(e) {
-        console.log('Erro ao enviar e-mail:', e.message);
+        console.log('Erro ao enviar e-mail:', e.message, e);
       }
     }
   }
