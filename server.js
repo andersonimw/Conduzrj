@@ -159,7 +159,7 @@ app.put('/api/admin/pedido/:id', authAdmin, async (req, res) => {
         const { Resend } = require('resend');
         const resend = new Resend(process.env.RESEND_API_KEY);
         await resend.emails.send({
-          from: 'ConduzRJ <recibo@conduzrj.com.br>',
+          from: 'ConduzRJ <onboarding@resend.dev>',
           to: pedido.email,
           subject: 'Recibo da sua viagem — ConduzRJ',
           html: `
