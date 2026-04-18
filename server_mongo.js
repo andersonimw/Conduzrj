@@ -216,7 +216,11 @@ app.put('/api/admin/pedido/:id', authAdmin, async (req, res) => {
                 ${pedido.pet ? `<p style="color:#333;margin:4px 0">🐾 Pet: ${pedido.pet}</p>` : ''}
                 <hr style="border:1px solid #eee;margin:16px 0">
                 <p style="color:#333;margin:16px 0">Foi um prazer te atender! 😊</p>
-                <p style="color:#888;font-size:12px">Em caso de dúvidas, entre em contato pelo WhatsApp.</p>
+                <div style="text-align:center;margin:24px 0">
+                  <p style="color:#333;margin:8px 0">Se quiser, deixe uma avaliação rápida no Google — me ajuda muito a continuar crescendo! 🙏</p>
+                  <a href="https://maps.app.goo.gl/1RSGPH3tBvvU6cpi6" style="display:inline-block;margin-top:12px;padding:12px 24px;background:#c9a84c;color:#fff;text-decoration:none;border-radius:8px;font-weight:700">⭐ Avaliar no Google</a>
+                </div>
+                <p style="color:#888;font-size:12px;text-align:center">Em caso de dúvidas, entre em contato pelo WhatsApp.</p>
               </div>
             </div>
           `
