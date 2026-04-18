@@ -191,17 +191,33 @@ app.put('/api/admin/pedido/:id', authAdmin, async (req, res) => {
           subject: 'Recibo da sua viagem — ConduzRJ',
           html: `
             <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:32px;background:#fff">
-              <h1 style="color:#c9a84c;font-size:22px;margin-bottom:4px">ConduzRJ</h1>
-              <h2 style="color:#111;font-size:18px">✅ Viagem Concluída</h2>
-              <p style="color:#333;margin:8px 0"><strong>Cliente:</strong> ${pedido.nome}</p>
-              <p style="color:#333;margin:8px 0"><strong>Serviço:</strong> ${pedido.servico}</p>
-              <p style="color:#333;margin:8px 0"><strong>Data:</strong> ${pedido.data}</p>
-              <p style="color:#333;margin:8px 0"><strong>Horário:</strong> ${pedido.hora}</p>
-              ${pedido.origem ? `<p style="color:#333;margin:8px 0"><strong>Origem:</strong> ${pedido.origem}</p>` : ''}
-              ${pedido.destino ? `<p style="color:#333;margin:8px 0"><strong>Destino:</strong> ${pedido.destino}</p>` : ''}
-              ${pedido.valorEstimado ? `<p style="color:#333;margin:8px 0"><strong>Valor:</strong> ${pedido.valorEstimado}</p>` : ''}
-              <p style="color:#333;margin:24px 0 8px">Foi um prazer te atender! 😊</p>
-              <p style="color:#888;font-size:12px">ConduzRJ — Transfer & Chauffeur Rio de Janeiro</p>
+              <div style="background:#c9a84c;padding:20px;border-radius:8px 8px 0 0;text-align:center">
+                <h1 style="color:#fff;font-size:24px;margin:0">🚗 ConduzRJ</h1>
+                <p style="color:#fff;margin:4px 0;font-size:14px">Transfer & Chauffeur Rio de Janeiro</p>
+              </div>
+              <div style="background:#f9f9f9;padding:24px;border-radius:0 0 8px 8px">
+                <h2 style="color:#111;font-size:20px;margin-bottom:16px">✅ Viagem Concluída!</h2>
+                <p style="color:#333;margin:8px 0"><strong>👤 Cliente:</strong> ${pedido.nome}</p>
+                <p style="color:#333;margin:8px 0"><strong>🔔 Serviço:</strong> ${pedido.servico}</p>
+                <p style="color:#333;margin:8px 0"><strong>📅 Data:</strong> ${pedido.data}</p>
+                <p style="color:#333;margin:8px 0"><strong>⏰ Horário:</strong> ${pedido.hora}</p>
+                ${pedido.origem ? `<p style="color:#333;margin:8px 0"><strong>🟢 Origem:</strong> ${pedido.origem}</p>` : ''}
+                ${pedido.destino ? `<p style="color:#333;margin:8px 0"><strong>🔴 Destino:</strong> ${pedido.destino}</p>` : ''}
+                ${pedido.km ? `<p style="color:#333;margin:8px 0"><strong>📍 KM estimado:</strong> ${pedido.km}km</p>` : ''}
+                ${pedido.valorEstimado ? `<p style="color:#c9a84c;margin:12px 0;font-size:18px"><strong>💰 Valor: ${pedido.valorEstimado}</strong></p>` : ''}
+                ${pedido.passageiros ? `<p style="color:#333;margin:8px 0"><strong>👥 Passageiros:</strong> ${pedido.passageiros}</p>` : ''}
+                ${pedido.bagagens && pedido.bagagens !== 'Nenhuma' ? `<p style="color:#333;margin:8px 0"><strong>🧳 Bagagens:</strong> ${pedido.bagagens}</p>` : ''}
+                ${pedido.veiculo ? `<p style="color:#333;margin:8px 0"><strong>🚗 Veículo:</strong> ${pedido.veiculo}</p>` : ''}
+                <hr style="border:1px solid #eee;margin:16px 0">
+                <p style="color:#333;margin:8px 0"><strong>🎵 Preferências da viagem:</strong></p>
+                ${pedido.som === 'musica' ? `<p style="color:#333;margin:4px 0">🎵 Música: ${pedido.musica || ''}</p>` : pedido.som === 'silencio' ? `<p style="color:#333;margin:4px 0">🔇 Viagem em silêncio</p>` : ''}
+                ${pedido.ar ? `<p style="color:#333;margin:4px 0">❄️ Ar condicionado: ${pedido.ar}</p>` : ''}
+                ${pedido.agua ? `<p style="color:#333;margin:4px 0">💧 Água mineral: ${pedido.agua}</p>` : ''}
+                ${pedido.pet ? `<p style="color:#333;margin:4px 0">🐾 Pet: ${pedido.pet}</p>` : ''}
+                <hr style="border:1px solid #eee;margin:16px 0">
+                <p style="color:#333;margin:16px 0">Foi um prazer te atender! 😊</p>
+                <p style="color:#888;font-size:12px">Em caso de dúvidas, entre em contato pelo WhatsApp.</p>
+              </div>
             </div>
           `
         });
