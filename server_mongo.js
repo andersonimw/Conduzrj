@@ -73,7 +73,7 @@ app.get('/api/dados', async (req, res) => {
 });
 
 app.post('/api/pedido', async (req, res) => {
-  const { nome, telefone, servico, data, hora, origem, destino, observacoes } = req.body;
+  const { nome, telefone, email, servico, data, hora, origem, destino, observacoes } = req.body;
   if (!nome || !telefone || !servico || !data || !hora) {
     return res.status(400).json({ erro: 'Preencha todos os campos obrigatórios' });
   }
@@ -81,7 +81,7 @@ app.post('/api/pedido', async (req, res) => {
   const pedidos = db.pedidos || [];
   const pedido = {
     id: Date.now(),
-    nome, telefone, servico, data, hora,
+    nome, telefone, email: email || '', servico, data, hora,
     origem: origem || '',
     destino: destino || '',
     observacoes: observacoes || '',
@@ -92,6 +92,7 @@ app.post('/api/pedido', async (req, res) => {
   await saveDB('pedidos', pedidos);
   const config = db.config || {};
   const tel = (config.telefone||'').replace(/\D/g, '');
+  const email = req.body.email || '';
   const km = req.body.km || '';
   const valorEstimado = req.body.valorEstimado || '';
   const som = req.body.som || '';
@@ -110,6 +111,7 @@ app.post('/api/pedido', async (req, res) => {
 
 👤 *Cliente:* ${nome}
 📱 *WhatsApp:* ${tel}
+📧 *E-mail:* ${email || 'Não informado'}
 🛎️ *Serviço:* ${servico}
 📅 *Data:* ${data}
 ⏰ *Horário:* ${hora}
