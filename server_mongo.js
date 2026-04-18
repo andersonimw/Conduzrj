@@ -184,7 +184,8 @@ app.put('/api/admin/pedido/:id', authAdmin, async (req, res) => {
     console.log('Email do pedido:', pedido.email);
     if (pedido.email) {
       try {
-        await transporter.sendMail({
+        console.log('Tentando enviar e-mail para:', pedido.email);
+        const info = await transporter.sendMail({
           from: 'ConduzRJ <conduzrjtransfer@gmail.com>',
           to: pedido.email,
           subject: 'Recibo da sua viagem — ConduzRJ',
@@ -204,6 +205,7 @@ app.put('/api/admin/pedido/:id', authAdmin, async (req, res) => {
             </div>
           `
         });
+        console.log('E-mail enviado com sucesso!', info.messageId);
       } catch(e) {
         console.log('Erro ao enviar e-mail:', e.message, e);
       }
