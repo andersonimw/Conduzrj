@@ -772,6 +772,7 @@ function enviarInline(uid, nome, preco, e) {
   msg += '💰 *Valor:* '+preco+'\n';
   msg += '👤 *Nome:* '+nomeC+'\n';
   msg += '📱 *WhatsApp:* '+tel+'\n';
+  if(email) msg += '📧 *E-mail:* '+email+'\n';
   if(data) msg += '📅 *Data:* '+data+'\n';
   if(hora) msg += '⏰ *Horário:* '+hora+'\n';
   if(orig) msg += '📍 *Origem:* '+orig+'\n';
