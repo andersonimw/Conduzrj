@@ -166,8 +166,43 @@ app.put('/api/admin/pedido/:id', authAdmin, async (req, res) => {
   const pedidos = db.pedidos || [];
   const idx = pedidos.findIndex(p => p.id == req.params.id);
   if (idx === -1) return res.status(404).json({ erro: 'Pedido não encontrado' });
+  const statusAnterior = pedidos[idx].status;
   pedidos[idx].status = req.body.status;
   await saveDB('pedidos', pedidos);
+
+  // Enviar recibo por e-mail quando concluido
+  if (req.body.status === 'concluido' && statusAnterior !== 'concluido') {
+    const pedido = pedidos[idx];
+    if (pedido.email) {
+      try {
+        const { Resend } = require('resend');
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        await resend.emails.send({
+          from: 'ConduzRJ <onboarding@resend.dev>',
+          to: pedido.email,
+          subject: 'Recibo da sua viagem — ConduzRJ',
+          html: `
+            <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:32px;background:#fff">
+              <h1 style="color:#c9a84c;font-size:22px;margin-bottom:4px">ConduzRJ</h1>
+              <h2 style="color:#111;font-size:18px">✅ Viagem Concluída</h2>
+              <p style="color:#333;margin:8px 0"><strong>Cliente:</strong> ${pedido.nome}</p>
+              <p style="color:#333;margin:8px 0"><strong>Serviço:</strong> ${pedido.servico}</p>
+              <p style="color:#333;margin:8px 0"><strong>Data:</strong> ${pedido.data}</p>
+              <p style="color:#333;margin:8px 0"><strong>Horário:</strong> ${pedido.hora}</p>
+              ${pedido.origem ? `<p style="color:#333;margin:8px 0"><strong>Origem:</strong> ${pedido.origem}</p>` : ''}
+              ${pedido.destino ? `<p style="color:#333;margin:8px 0"><strong>Destino:</strong> ${pedido.destino}</p>` : ''}
+              ${pedido.valorEstimado ? `<p style="color:#333;margin:8px 0"><strong>Valor:</strong> ${pedido.valorEstimado}</p>` : ''}
+              <p style="color:#333;margin:24px 0 8px">Foi um prazer te atender! 😊</p>
+              <p style="color:#888;font-size:12px">ConduzRJ — Transfer & Chauffeur Rio de Janeiro</p>
+            </div>
+          `
+        });
+      } catch(e) {
+        console.log('Erro ao enviar e-mail:', e.message);
+      }
+    }
+  }
+
   res.json({ sucesso: true });
 });
 
