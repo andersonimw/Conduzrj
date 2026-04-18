@@ -95,16 +95,34 @@ app.get('/api/dados', (req, res) => {
 // API - enviar pedido
 app.post('/api/pedido', (req, res) => {
   const db = getDB();
-  const { nome, telefone, servico, data, hora, origem, destino, observacoes } = req.body;
+  const { nome, telefone, email, servico, data, hora, origem, destino, observacoes } = req.body;
   if (!nome || !telefone || !servico || !data || !hora) {
     return res.status(400).json({ erro: 'Preencha todos os campos obrigatórios' });
   }
   const pedido = {
     id: Date.now(),
-    nome, telefone, servico, data, hora,
+    nome, 
+    telefone, 
+    email: email || '', 
+    servico, 
+    data, 
+    hora,
     origem: origem || '',
     destino: destino || '',
     observacoes: observacoes || '',
+    km: req.body.km || '',
+    valorEstimado: req.body.valorEstimado || '',
+    som: req.body.som || '',
+    musica: req.body.musica || '',
+    artista: req.body.artista || '',
+    ar: req.body.ar || '',
+    agua: req.body.agua || '',
+    veiculo: req.body.veiculo || '',
+    parada: req.body.parada || '',
+    voo: req.body.voo || '',
+    passageiros: req.body.passageiros || '1',
+    bagagens: req.body.bagagens || '',
+    pet: req.body.pet || '',
     status: 'pendente',
     criado_em: new Date().toISOString()
   };
