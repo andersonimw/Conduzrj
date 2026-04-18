@@ -143,12 +143,59 @@ app.get('/api/admin/pedidos', authAdmin, (req, res) => {
   res.json(db.pedidos.reverse());
 });
 
-app.put('/api/admin/pedido/:id', authAdmin, (req, res) => {
+app.put('/api/admin/pedido/:id', authAdmin, async (req, res) => {
   const db = getDB();
   const idx = db.pedidos.findIndex(p => p.id == req.params.id);
   if (idx === -1) return res.status(404).json({ erro: 'Pedido não encontrado' });
+  const statusAnterior = db.pedidos[idx].status;
   db.pedidos[idx].status = req.body.status;
   saveDB(db);
+
+  // Enviar recibo por e-mail quando concluido
+  if (req.body.status === 'concluido' && statusAnterior !== 'concluido') {
+    const pedido = db.pedidos[idx];
+    if (pedido.email) {
+      try {
+        const { Resend } = require('resend');
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        await resend.emails.send({
+          from: 'ConduzRJ <recibo@conduzrj.com.br>',
+          to: pedido.email,
+          subject: 'Recibo da sua viagem — ConduzRJ',
+          html: `
+            <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:32px;background:#fff">
+              <div style="text-align:center;margin-bottom:24px">
+                <h1 style="color:#c9a84c;font-size:28px;margin:0">ConduzRJ</h1>
+                <p style="color:#666;font-size:13px;margin:4px 0 0">Transfer & Chauffeur Rio de Janeiro</p>
+              </div>
+              <div style="background:#f9f9f9;border-radius:12px;padding:24px;margin-bottom:24px">
+                <h2 style="color:#111;font-size:18px;margin:0 0 16px">✅ Viagem Concluída</h2>
+                <p style="color:#333;margin:8px 0"><strong>Cliente:</strong> ${pedido.nome}</p>
+                <p style="color:#333;margin:8px 0"><strong>Serviço:</strong> ${pedido.servico}</p>
+                <p style="color:#333;margin:8px 0"><strong>Data:</strong> ${pedido.data}</p>
+                <p style="color:#333;margin:8px 0"><strong>Horário:</strong> ${pedido.hora}</p>
+                ${pedido.origem ? `<p style="color:#333;margin:8px 0"><strong>Origem:</strong> ${pedido.origem}</p>` : ''}
+                ${pedido.destino ? `<p style="color:#333;margin:8px 0"><strong>Destino:</strong> ${pedido.destino}</p>` : ''}
+                ${pedido.valorEstimado ? `<p style="color:#c9a84c;margin:8px 0;font-size:18px"><strong>Valor:</strong> ${pedido.valorEstimado}</p>` : ''}
+              </div>
+              <div style="text-align:center;margin-bottom:24px">
+                <p style="color:#333;font-size:15px">Foi um prazer te atender! 😊</p>
+                <p style="color:#666;font-size:13px">Se quiser, deixe uma avaliação no Google:</p>
+                <a href="https://maps.app.goo.gl/1RSGPH3tBvvU6cpi6" style="display:inline-block;margin-top:8px;padding:12px 24px;background:#c9a84c;color:#000;border-radius:8px;font-weight:700;text-decoration:none">⭐ Avaliar no Google</a>
+              </div>
+              <div style="text-align:center;border-top:1px solid #eee;padding-top:16px">
+                <p style="color:#999;font-size:12px">ConduzRJ — Transfer & Chauffeur Rio de Janeiro</p>
+                <p style="color:#999;font-size:12px">(21) 97672-6175 · conduzrj.onrender.com</p>
+              </div>
+            </div>
+          `
+        });
+      } catch(e) {
+        console.log('Erro ao enviar e-mail:', e.message);
+      }
+    }
+  }
+
   res.json({ sucesso: true });
 });
 
