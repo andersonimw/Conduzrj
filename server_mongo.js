@@ -1,4 +1,6 @@
 require("dotenv").config();
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
@@ -175,8 +177,6 @@ app.put('/api/admin/pedido/:id', authAdmin, async (req, res) => {
     const pedido = pedidos[idx];
     if (pedido.email) {
       try {
-        const { Resend } = require('resend');
-        const resend = new Resend(process.env.RESEND_API_KEY);
         await resend.emails.send({
           from: 'ConduzRJ <onboarding@resend.dev>',
           to: pedido.email,
