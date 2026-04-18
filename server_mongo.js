@@ -175,6 +175,7 @@ app.put('/api/admin/pedido/:id', authAdmin, async (req, res) => {
   // Enviar recibo por e-mail quando concluido
   if (req.body.status === 'concluido' && statusAnterior !== 'concluido') {
     const pedido = pedidos[idx];
+    console.log('Email do pedido:', pedido.email);
     if (pedido.email) {
       try {
         await resend.emails.send({
