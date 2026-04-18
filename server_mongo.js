@@ -1,6 +1,12 @@
 require("dotenv").config();
-const { Resend } = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
+const nodemailer = require('nodemailer');
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'conduzrjtransfer@gmail.com',
+    pass: 'ooxx forp bkkl aymm'
+  }
+});
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
@@ -178,8 +184,8 @@ app.put('/api/admin/pedido/:id', authAdmin, async (req, res) => {
     console.log('Email do pedido:', pedido.email);
     if (pedido.email) {
       try {
-        await resend.emails.send({
-          from: 'ConduzRJ <onboarding@resend.dev>',
+        await transporter.sendMail({
+          from: 'ConduzRJ <conduzrjtransfer@gmail.com>',
           to: pedido.email,
           subject: 'Recibo da sua viagem — ConduzRJ',
           html: `
