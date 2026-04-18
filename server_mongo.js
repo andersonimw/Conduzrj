@@ -92,7 +92,6 @@ app.post('/api/pedido', async (req, res) => {
   await saveDB('pedidos', pedidos);
   const config = db.config || {};
   const tel = (config.telefone||'').replace(/\D/g, '');
-  const email = req.body.email || '';
   const km = req.body.km || '';
   const valorEstimado = req.body.valorEstimado || '';
   const som = req.body.som || '';
