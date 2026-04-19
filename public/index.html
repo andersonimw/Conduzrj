@@ -1240,6 +1240,17 @@ const traducoes = {
     titleAgendar: 'Agende sua viagem', titleHorarios: 'Horários de atendimento',
     titleAvaliacoes: 'O que dizem os clientes', titleSobre: 'Sobre o Conduz RJ',
     footerCopy: '© 2024 Conduz RJ · Todos os direitos reservados',
+    btnAgendar2: 'Agendar este serviço →',
+    servicos: [
+      { nome: 'Corrida Avulsa', descricao: 'Trajeto simples de A a B' },
+      { nome: 'Diária (6h)', descricao: 'Motorista à sua disposição por 8 horas' },
+      { nome: 'Meio Período (3h)', descricao: 'Motorista à sua disposição por 4 horas' },
+      { nome: 'Transfer Aeroporto', descricao: 'GIG ou SDU com pontualidade garantida' },
+      { nome: 'Executivo Corporativo', descricao: 'Para empresas e reuniões de negócios' },
+      { nome: 'Eventos e Shows', descricao: 'Rock in Rio, Réveillon, casamentos e festas' },
+      { nome: 'Turismo pelo RJ', descricao: 'Roteiros personalizados pela cidade maravilhosa' },
+      { nome: 'Transporte Médico', descricao: 'Consultas, exames e procedimentos. Embarque com calma e atenção.' },
+    ],
   },
   en: {
     navAgendar: 'Book now', navServicos: 'Services', navHorarios: 'Hours',
@@ -1254,6 +1265,17 @@ const traducoes = {
     titleAgendar: 'Book your ride', titleHorarios: 'Service hours',
     titleAvaliacoes: 'What clients say', titleSobre: 'About ConduzRJ',
     footerCopy: '© 2024 Conduz RJ · All rights reserved',
+    btnAgendar2: 'Book this service →',
+    servicos: [
+      { nome: 'One-Way Ride', descricao: 'Simple trip from A to B' },
+      { nome: 'Full Day (6h)', descricao: 'Driver at your disposal for 8 hours' },
+      { nome: 'Half Day (3h)', descricao: 'Driver at your disposal for 4 hours' },
+      { nome: 'Airport Transfer', descricao: 'GIG or SDU with guaranteed punctuality' },
+      { nome: 'Corporate Executive', descricao: 'For companies and business meetings' },
+      { nome: 'Events & Shows', descricao: "Rock in Rio, New Year's Eve, weddings and parties" },
+      { nome: 'Rio Sightseeing', descricao: 'Personalized tours through the Marvelous City' },
+      { nome: 'Medical Transport', descricao: 'Appointments, exams and procedures. Calm and attentive service.' },
+    ],
   },
   es: {
     navAgendar: 'Reservar ahora', navServicos: 'Servicios', navHorarios: 'Horarios',
@@ -1268,6 +1290,17 @@ const traducoes = {
     titleAgendar: 'Reserve su viaje', titleHorarios: 'Horarios de atención',
     titleAvaliacoes: 'Lo que dicen los clientes', titleSobre: 'Sobre ConduzRJ',
     footerCopy: '© 2024 Conduz RJ · Todos los derechos reservados',
+    btnAgendar2: 'Reservar este servicio →',
+    servicos: [
+      { nome: 'Viaje Sencillo', descricao: 'Trayecto simple de A a B' },
+      { nome: 'Día Completo (6h)', descricao: 'Conductor a su disposición por 8 horas' },
+      { nome: 'Medio Día (3h)', descricao: 'Conductor a su disposición por 4 horas' },
+      { nome: 'Transfer Aeropuerto', descricao: 'GIG o SDU con puntualidad garantizada' },
+      { nome: 'Ejecutivo Corporativo', descricao: 'Para empresas y reuniones de negocios' },
+      { nome: 'Eventos y Shows', descricao: 'Rock in Rio, Año Nuevo, bodas y fiestas' },
+      { nome: 'Turismo por RJ', descricao: 'Itinerarios personalizados por la Ciudad Maravillosa' },
+      { nome: 'Transporte Médico', descricao: 'Consultas, exámenes y procedimientos. Servicio tranquilo y atento.' },
+    ],
   }
 };
 
@@ -1331,6 +1364,22 @@ function traduzir(lang) {
   // Footer
   const footerCopy = document.getElementById('footer-copy');
   if(footerCopy) footerCopy.textContent = t.footerCopy;
+
+
+  // Cards de servicos
+  if(t.servicos) {
+    const cards = document.querySelectorAll('.servico-card');
+    cards.forEach((card, i) => {
+      const s = t.servicos[i];
+      if(!s) return;
+      const nome = card.querySelector('.servico-nome');
+      const desc = card.querySelector('.servico-desc');
+      const btn = card.querySelector('.servico-btn');
+      if(nome) nome.textContent = s.nome;
+      if(desc) desc.textContent = s.descricao;
+      if(btn) btn.textContent = t.btnAgendar2;
+    });
+  }
 
   localStorage.setItem('lang', lang);
 }
