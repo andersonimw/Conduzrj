@@ -254,7 +254,12 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
     <li><a href="#avaliacoes">Avaliações</a></li>
     <li><a href="#sobre">Sobre</a></li>
   </ul>
-  <a href="#agendar" class="nav-cta">Agendar agora</a>
+  <div style="display:flex;align-items:center;gap:8px;margin-right:8px">
+    <button onclick="traduzir('pt')" id="lang-pt" style="background:none;border:none;cursor:pointer;font-size:18px;opacity:1" title="Português">🇧🇷</button>
+    <button onclick="traduzir('en')" id="lang-en" style="background:none;border:none;cursor:pointer;font-size:18px;opacity:0.4" title="English">🇺🇸</button>
+    <button onclick="traduzir('es')" id="lang-es" style="background:none;border:none;cursor:pointer;font-size:18px;opacity:0.4" title="Español">🇪🇸</button>
+  </div>
+  <a href="#agendar" class="nav-cta" id="nav-cta-agendar">Agendar agora</a>
   <button class="nav-menu" onclick="toggleMenu()" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
@@ -1220,6 +1225,59 @@ async function verificarHorarioModal(){
     aviso.textContent="❌ Horário já ocupado! Escolha outro.";
   }
 }
+
+const traducoes = {
+  pt: {
+    navAgendar: 'Agendar agora',
+    heroBadge: 'Transfer & Chauffeur · Rio de Janeiro',
+    heroH1: 'Transfer & Chauffeur no <span>Rio de Janeiro</span>',
+    heroP: 'Transfer aeroporto GIG e SDU, transporte executivo, turismo e eventos no RJ. Motorista fixo, profissional e pontual. Agende com antecedência!',
+    btnAgendar: 'Agendar agora',
+    btnServicos: 'Ver serviços',
+  },
+  en: {
+    navAgendar: 'Book now',
+    heroBadge: 'Transfer & Chauffeur · Rio de Janeiro',
+    heroH1: 'Transfer & Chauffeur in <span>Rio de Janeiro</span>',
+    heroP: 'GIG and SDU airport transfers, executive transport, tourism and events in Rio. Fixed driver, professional and punctual. Book in advance!',
+    btnAgendar: 'Book now',
+    btnServicos: 'Our services',
+  },
+  es: {
+    navAgendar: 'Reservar ahora',
+    heroBadge: 'Transfer & Chauffeur · Río de Janeiro',
+    heroH1: 'Transfer & Chauffeur en <span>Río de Janeiro</span>',
+    heroP: 'Traslados aeropuerto GIG y SDU, transporte ejecutivo, turismo y eventos en RJ. Conductor fijo, profesional y puntual. ¡Reserve con anticipación!',
+    btnAgendar: 'Reservar ahora',
+    btnServicos: 'Ver servicios',
+  }
+};
+
+function traduzir(lang) {
+  ['pt','en','es'].forEach(l => {
+    const btn = document.getElementById('lang-'+l);
+    if(btn) btn.style.opacity = l === lang ? '1' : '0.4';
+  });
+  const t = traducoes[lang];
+  if(!t) return;
+  const navCta = document.getElementById('nav-cta-agendar');
+  if(navCta) navCta.textContent = t.navAgendar;
+  const heroBadge = document.querySelector('.hero-badge');
+  if(heroBadge) heroBadge.textContent = t.heroBadge;
+  const heroH1 = document.querySelector('.hero-inner h1');
+  if(heroH1) heroH1.innerHTML = t.heroH1;
+  const heroP = document.querySelector('.hero-inner p');
+  if(heroP) heroP.textContent = t.heroP;
+  const btns = document.querySelectorAll('.hero-btns a');
+  if(btns[0]) btns[0].textContent = t.btnAgendar;
+  if(btns[1]) btns[1].textContent = t.btnServicos;
+  localStorage.setItem('lang', lang);
+}
+
+window.addEventListener('load', () => {
+  const lang = localStorage.getItem('lang') || 'pt';
+  traduzir(lang);
+});
 </script>
 
 <div id="modal-servico" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:500;overflow-y:auto;-webkit-overflow-scrolling:touch;">
