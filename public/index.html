@@ -870,7 +870,8 @@ async function enviarPedidoModal() {
         voo: document.getElementById('ms-voo').value||'',
         passageiros: document.getElementById('ms-passageiros').value||'1',
         bagagens: document.getElementById('ms-bagagens').value||'Nenhuma',
-        pet: (document.querySelector('#modal-servico input[name="ms-pet"]:checked')||{}).value||''
+        pet: (document.querySelector('#modal-servico input[name="ms-pet"]:checked')||{}).value||'',
+        carregador: (document.querySelector('#modal-servico input[name="ms-carregador"]:checked')||{}).value||''
       })
     });
     const d = await r.json();
@@ -1378,6 +1379,15 @@ async function verificarHorarioModal(){
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
             <label style="display:flex;align-items:center;gap:6px;padding:8px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:12px"><input type="radio" name="ms-agua" value="Sim"> 💧 Sim</label>
             <label style="display:flex;align-items:center;gap:6px;padding:8px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:12px"><input type="radio" name="ms-agua" value="Nao"> 🚫 Não</label>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div style="font-size:12px;color:#555;margin-bottom:8px">🔌 Carregador no veículo</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+            <label style="display:flex;align-items:center;gap:6px;padding:8px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:12px"><input type="radio" name="ms-carregador" value="iOS">  iOS</label>
+            <label style="display:flex;align-items:center;gap:6px;padding:8px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:12px"><input type="radio" name="ms-carregador" value="Android"> 🤖 Android</label>
+            <label style="display:flex;align-items:center;gap:6px;padding:8px;background:#fff;border-radius:8px;border:1.5px solid #ddd;cursor:pointer;font-size:12px"><input type="radio" name="ms-carregador" value="Nao preciso"> 🚫 Não preciso</label>
           </div>
         </div>
       </div>

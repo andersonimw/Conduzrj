@@ -106,6 +106,7 @@ app.post('/api/pedido', async (req, res) => {
     passageiros: req.body.passageiros || '1',
     bagagens: req.body.bagagens || '',
     pet: req.body.pet || '',
+    carregador: req.body.carregador || '',
     status: 'pendente',
     criado_em: new Date().toISOString()
   };
@@ -147,7 +148,7 @@ ${voo ? '✈️ *Número do voo:* '+voo : ''}
 ${som === 'silencio' ? '🔇 Viagem em silêncio' : som === 'musica' ? '🎵 Com música: '+(musica === 'Outro' ? artista : musica) : ''}
 ${ar ? '❄️ Ar condicionado: '+ar : ''}
 ${agua ? '💧 Água mineral: '+agua : ''}
-${pet ? '🐾 Pet: '+pet : ''}
+${pet ? '🐾 Pet: '+pet+'\n' : ''}${req.body.carregador ? '🔌 Carregador: '+req.body.carregador : ''}
 
 👥 *Passageiros:* ${passageiros}
 ${bagagens && bagagens !== 'Nenhuma' ? '🧳 *Bagagens:* '+bagagens : ''}
