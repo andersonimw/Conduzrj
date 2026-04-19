@@ -248,11 +248,11 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
 <nav>
   <div class="nav-logo" id="nav-logo">Conduz<span>RJ</span></div>
   <ul class="nav-links">
-    <li><a href="#servicos">Serviços</a></li>
-    <li><a href="#agendar">Agendar</a></li>
-    <li><a href="#horarios">Horários</a></li>
-    <li><a href="#avaliacoes">Avaliações</a></li>
-    <li><a href="#sobre">Sobre</a></li>
+    <li><a href="#servicos" id="nav-servicos">Serviços</a></li>
+    <li><a href="#agendar" id="nav-agendar-link">Agendar</a></li>
+    <li><a href="#horarios" id="nav-horarios">Horários</a></li>
+    <li><a href="#avaliacoes" id="nav-avaliacoes">Avaliações</a></li>
+    <li><a href="#sobre" id="nav-sobre">Sobre</a></li>
   </ul>
   <div style="display:flex;align-items:center;gap:8px;margin-right:8px">
     <button onclick="traduzir('pt')" id="lang-pt" style="background:none;border:none;cursor:pointer;font-size:18px;opacity:1" title="Português">🇧🇷</button>
@@ -318,12 +318,12 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
   <div style="max-width:500px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
     <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:12px 8px;background:#f9f9f9;border-radius:12px;border:1px solid #eee;gap:4px;min-height:90px;justify-content:center">
       <div style="font-size:22px">🐾</div>
-      <div style="font-weight:700;font-size:12px;color:#111;line-height:1.2;text-align:center">Pet Friendly</div>
+      <div style="font-weight:700;font-size:12px;color:#111;line-height:1.2;text-align:center" id="badge-pet">Pet Friendly</div>
       <div style="display:none">Aceita pets em caixa de transporte</div>
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:12px 8px;background:#f9f9f9;border-radius:12px;border:1px solid #eee;gap:4px;min-height:90px;justify-content:center">
       <div style="font-size:22px">🛡️</div>
-      <div style="font-weight:700;font-size:12px;color:#111;line-height:1.2;text-align:center">Viagem Segura</div>
+      <div style="font-weight:700;font-size:12px;color:#111;line-height:1.2;text-align:center" id="badge-segura">Viagem Segura</div>
       <div style="display:none">Veículo sempre limpo e revisado</div>
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:12px 8px;background:#f9f9f9;border-radius:12px;border:1px solid #eee;gap:4px;min-height:90px;justify-content:center">
@@ -333,12 +333,12 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:12px 8px;background:#f9f9f9;border-radius:12px;border:1px solid #eee;gap:4px;min-height:90px;justify-content:center">
       <div style="font-size:22px">✅</div>
-      <div style="font-weight:700;font-size:12px;color:#111;line-height:1.2;text-align:center">Motorista Verificado</div>
+      <div style="font-weight:700;font-size:12px;color:#111;line-height:1.2;text-align:center" id="badge-motorista">Motorista Verificado</div>
       <div style="display:none">CNH profissional e antecedentes limpos</div>
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:12px 8px;background:#f9f9f9;border-radius:12px;border:1px solid #eee;gap:4px;min-height:90px;justify-content:center">
       <div style="font-size:22px">💳</div>
-      <div style="font-weight:700;font-size:12px;color:#111;line-height:1.2;text-align:center">Preço Fixo</div>
+      <div style="font-weight:700;font-size:12px;color:#111;line-height:1.2;text-align:center" id="badge-preco">Preço Fixo</div>
       <div style="display:none">Sem surpresas, sem surge pricing</div>
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:12px 8px;background:#f9f9f9;border-radius:12px;border:1px solid #eee;gap:4px;min-height:90px;justify-content:center">
@@ -366,7 +366,7 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
 <section id="servicos">
   <div class="container">
     <div class="section-tag">O que oferecemos</div>
-    <h2 class="section-title">Nossos serviços</h2>
+    <h2 class="section-title" id="title-servicos">Nossos serviços</h2>
     <p class="section-sub">Do traslado executivo ao turismo pela cidade. Escolha o serviço ideal para você.</p>
     <div class="servicos-grid" id="servicosGrid"></div>
   </div>
@@ -376,7 +376,7 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
 <section id="frota" style="background:var(--preto);padding:80px 24px">
   <div class="container">
     <div class="section-tag">Nossa Frota</div>
-    <h2 class="section-title">Veículos disponíveis</h2>
+    <h2 class="section-title" id="title-veiculos">Veículos disponíveis</h2>
     <p class="section-sub">Conforto e segurança em cada viagem.</p>
     <div id="frotaGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:40px"></div>
   </div>
@@ -385,7 +385,7 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
 <section id="agendar" style="display:none">
   <div class="container">
     <div class="section-tag">Reservas</div>
-    <h2 class="section-title">Agende sua viagem</h2>
+    <h2 class="section-title" id="title-agendar">Agende sua viagem</h2>
     <p class="section-sub">Preencha o formulário e receba confirmação direto no WhatsApp.</p>
     <div class="agendar-wrap">
       <div class="agendar-info">
@@ -545,7 +545,7 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
 <section id="horarios" style="display:none">
   <div class="container">
     <div class="section-tag">Disponibilidade</div>
-    <h2 class="section-title">Horários de atendimento</h2>
+    <h2 class="section-title" id="title-horarios">Horários de atendimento</h2>
     <p class="section-sub">Confira os dias e horários disponíveis para agendamento.</p>
     <div class="horarios-grid" id="horariosGrid"></div>
   </div>
@@ -554,7 +554,7 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
 <section id="avaliacoes">
   <div class="container">
     <div class="section-tag">Depoimentos</div>
-    <h2 class="section-title">O que dizem os clientes</h2>
+    <h2 class="section-title" id="title-avaliacoes">O que dizem os clientes</h2>
     <p class="section-sub">A satisfação dos nossos passageiros é nossa maior conquista.</p>
     <div class="aval-grid" id="avalGrid"></div>
   </div>
@@ -563,7 +563,7 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
 <section id="sobre">
   <div class="container">
     <div class="section-tag" style="background:rgba(201,168,76,0.2)">Quem somos</div>
-    <h2 class="section-title">Sobre o Conduz RJ</h2>
+    <h2 class="section-title" id="title-sobre">Sobre o Conduz RJ</h2>
     <div class="sobre-wrap">
       <div class="sobre-texto" id="sobreTexto"></div>
       <div class="sobre-veiculo" id="sobreVeiculo"></div>
@@ -581,7 +581,7 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
     <a href="#avaliacoes">Avaliações</a>
     <a href="/admin">Admin</a>
   </div>
-  <div class="footer-copy">© 2024 Conduz RJ · Todos os direitos reservados</div>
+  <div class="footer-copy" id="footer-copy">© 2024 Conduz RJ · Todos os direitos reservados</div>
 </footer>
 
 <div style="position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;align-items:center;z-index:200;gap:4px" id="wppWrapper">
@@ -1228,28 +1228,46 @@ async function verificarHorarioModal(){
 
 const traducoes = {
   pt: {
-    navAgendar: 'Agendar agora',
+    navAgendar: 'Agendar agora', navServicos: 'Serviços', navHorarios: 'Horários',
+    navAvaliacoes: 'Avaliações', navSobre: 'Sobre', navAgendarLink: 'Agendar',
     heroBadge: 'Transfer & Chauffeur · Rio de Janeiro',
     heroH1: 'Transfer & Chauffeur no <span>Rio de Janeiro</span>',
     heroP: 'Transfer aeroporto GIG e SDU, transporte executivo, turismo e eventos no RJ. Motorista fixo, profissional e pontual. Agende com antecedência!',
-    btnAgendar: 'Agendar agora',
-    btnServicos: 'Ver serviços',
+    btnAgendar: 'Agendar agora', btnServicos: 'Ver serviços',
+    badgePet: 'Pet Friendly', badgeSegura: 'Viagem Segura',
+    badgeMotorista: 'Motorista Verificado', badgePreco: 'Preço Fixo',
+    titleServicos: 'Nossos serviços', titleVeiculos: 'Veículos disponíveis',
+    titleAgendar: 'Agende sua viagem', titleHorarios: 'Horários de atendimento',
+    titleAvaliacoes: 'O que dizem os clientes', titleSobre: 'Sobre o Conduz RJ',
+    footerCopy: '© 2024 Conduz RJ · Todos os direitos reservados',
   },
   en: {
-    navAgendar: 'Book now',
+    navAgendar: 'Book now', navServicos: 'Services', navHorarios: 'Hours',
+    navAvaliacoes: 'Reviews', navSobre: 'About', navAgendarLink: 'Book',
     heroBadge: 'Transfer & Chauffeur · Rio de Janeiro',
     heroH1: 'Transfer & Chauffeur in <span>Rio de Janeiro</span>',
     heroP: 'GIG and SDU airport transfers, executive transport, tourism and events in Rio. Fixed driver, professional and punctual. Book in advance!',
-    btnAgendar: 'Book now',
-    btnServicos: 'Our services',
+    btnAgendar: 'Book now', btnServicos: 'Our services',
+    badgePet: 'Pet Friendly', badgeSegura: 'Safe Ride',
+    badgeMotorista: 'Verified Driver', badgePreco: 'Fixed Price',
+    titleServicos: 'Our services', titleVeiculos: 'Available vehicles',
+    titleAgendar: 'Book your ride', titleHorarios: 'Service hours',
+    titleAvaliacoes: 'What clients say', titleSobre: 'About ConduzRJ',
+    footerCopy: '© 2024 Conduz RJ · All rights reserved',
   },
   es: {
-    navAgendar: 'Reservar ahora',
+    navAgendar: 'Reservar ahora', navServicos: 'Servicios', navHorarios: 'Horarios',
+    navAvaliacoes: 'Opiniones', navSobre: 'Sobre', navAgendarLink: 'Reservar',
     heroBadge: 'Transfer & Chauffeur · Río de Janeiro',
     heroH1: 'Transfer & Chauffeur en <span>Río de Janeiro</span>',
     heroP: 'Traslados aeropuerto GIG y SDU, transporte ejecutivo, turismo y eventos en RJ. Conductor fijo, profesional y puntual. ¡Reserve con anticipación!',
-    btnAgendar: 'Reservar ahora',
-    btnServicos: 'Ver servicios',
+    btnAgendar: 'Reservar ahora', btnServicos: 'Ver servicios',
+    badgePet: 'Mascotas OK', badgeSegura: 'Viaje Seguro',
+    badgeMotorista: 'Conductor Verificado', badgePreco: 'Precio Fijo',
+    titleServicos: 'Nuestros servicios', titleVeiculos: 'Vehículos disponibles',
+    titleAgendar: 'Reserve su viaje', titleHorarios: 'Horarios de atención',
+    titleAvaliacoes: 'Lo que dicen los clientes', titleSobre: 'Sobre ConduzRJ',
+    footerCopy: '© 2024 Conduz RJ · Todos los derechos reservados',
   }
 };
 
@@ -1260,8 +1278,22 @@ function traduzir(lang) {
   });
   const t = traducoes[lang];
   if(!t) return;
+
+  // Navbar
   const navCta = document.getElementById('nav-cta-agendar');
   if(navCta) navCta.textContent = t.navAgendar;
+  const navServicos = document.getElementById('nav-servicos');
+  if(navServicos) navServicos.textContent = t.navServicos;
+  const navHorarios = document.getElementById('nav-horarios');
+  if(navHorarios) navHorarios.textContent = t.navHorarios;
+  const navAvaliacoes = document.getElementById('nav-avaliacoes');
+  if(navAvaliacoes) navAvaliacoes.textContent = t.navAvaliacoes;
+  const navSobre = document.getElementById('nav-sobre');
+  if(navSobre) navSobre.textContent = t.navSobre;
+  const navAgendarLink = document.getElementById('nav-agendar-link');
+  if(navAgendarLink) navAgendarLink.textContent = t.navAgendarLink;
+
+  // Hero
   const heroBadge = document.querySelector('.hero-badge');
   if(heroBadge) heroBadge.textContent = t.heroBadge;
   const heroH1 = document.querySelector('.hero-inner h1');
@@ -1271,6 +1303,35 @@ function traduzir(lang) {
   const btns = document.querySelectorAll('.hero-btns a');
   if(btns[0]) btns[0].textContent = t.btnAgendar;
   if(btns[1]) btns[1].textContent = t.btnServicos;
+
+  // Badges
+  const badgePet = document.getElementById('badge-pet');
+  if(badgePet) badgePet.textContent = t.badgePet;
+  const badgeSegura = document.getElementById('badge-segura');
+  if(badgeSegura) badgeSegura.textContent = t.badgeSegura;
+  const badgeMotorista = document.getElementById('badge-motorista');
+  if(badgeMotorista) badgeMotorista.textContent = t.badgeMotorista;
+  const badgePreco = document.getElementById('badge-preco');
+  if(badgePreco) badgePreco.textContent = t.badgePreco;
+
+  // Section titles
+  const titleServicos = document.getElementById('title-servicos');
+  if(titleServicos) titleServicos.textContent = t.titleServicos;
+  const titleVeiculos = document.getElementById('title-veiculos');
+  if(titleVeiculos) titleVeiculos.textContent = t.titleVeiculos;
+  const titleAgendar = document.getElementById('title-agendar');
+  if(titleAgendar) titleAgendar.textContent = t.titleAgendar;
+  const titleHorarios = document.getElementById('title-horarios');
+  if(titleHorarios) titleHorarios.textContent = t.titleHorarios;
+  const titleAvaliacoes = document.getElementById('title-avaliacoes');
+  if(titleAvaliacoes) titleAvaliacoes.textContent = t.titleAvaliacoes;
+  const titleSobre = document.getElementById('title-sobre');
+  if(titleSobre) titleSobre.textContent = t.titleSobre;
+
+  // Footer
+  const footerCopy = document.getElementById('footer-copy');
+  if(footerCopy) footerCopy.textContent = t.footerCopy;
+
   localStorage.setItem('lang', lang);
 }
 
