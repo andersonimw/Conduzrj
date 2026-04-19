@@ -367,7 +367,7 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
   <div class="container">
     <div class="section-tag">O que oferecemos</div>
     <h2 class="section-title" id="title-servicos">Nossos serviços</h2>
-    <p class="section-sub">Do traslado executivo ao turismo pela cidade. Escolha o serviço ideal para você.</p>
+    <p class="section-sub" id="sub-servicos">Do traslado executivo ao turismo pela cidade. Escolha o serviço ideal para você.</p>
     <div class="servicos-grid" id="servicosGrid"></div>
   </div>
 </section>
@@ -377,7 +377,7 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
   <div class="container">
     <div class="section-tag">Nossa Frota</div>
     <h2 class="section-title" id="title-veiculos">Veículos disponíveis</h2>
-    <p class="section-sub">Conforto e segurança em cada viagem.</p>
+    <p class="section-sub" id="sub-veiculos">Conforto e segurança em cada viagem.</p>
     <div id="frotaGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:40px"></div>
   </div>
 </section>
@@ -555,7 +555,7 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
   <div class="container">
     <div class="section-tag">Depoimentos</div>
     <h2 class="section-title" id="title-avaliacoes">O que dizem os clientes</h2>
-    <p class="section-sub">A satisfação dos nossos passageiros é nossa maior conquista.</p>
+    <p class="section-sub" id="sub-avaliacoes">A satisfação dos nossos passageiros é nossa maior conquista.</p>
     <div class="aval-grid" id="avalGrid"></div>
   </div>
 </section>
@@ -585,7 +585,7 @@ footer{background:#050505;color:#888;padding:40px 24px;text-align:center}
 </footer>
 
 <div style="position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;align-items:center;z-index:200;gap:4px" id="wppWrapper">
-  <div style="background:#25d366;color:#fff;padding:6px 12px;border-radius:12px;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 2px 10px rgba(37,211,102,0.4)">Fale comigo agora!</div>
+  <div style="background:#25d366;color:#fff;padding:6px 12px;border-radius:12px;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 2px 10px rgba(37,211,102,0.4)" id="btn-whatsapp">Fale comigo agora!</div>
   <div class="wpp-float" id="wppFloat" title="Falar no WhatsApp">💬</div>
 </div>
 
@@ -1240,6 +1240,10 @@ const traducoes = {
     titleAgendar: 'Agende sua viagem', titleHorarios: 'Horários de atendimento',
     titleAvaliacoes: 'O que dizem os clientes', titleSobre: 'Sobre o Conduz RJ',
     footerCopy: '© 2024 Conduz RJ · Todos os direitos reservados',
+    subServicos: 'Do traslado executivo ao turismo pela cidade. Escolha o serviço ideal para você.',
+    subVeiculos: 'Conforto e segurança em cada viagem.',
+    subAvaliacoes: 'A satisfação dos nossos passageiros é nossa maior conquista.',
+    btnWhatsapp: 'Fale comigo agora!',
     btnAgendar2: 'Agendar este serviço →',
     servicos: [
       { nome: 'Corrida Avulsa', descricao: 'Trajeto simples de A a B' },
@@ -1265,6 +1269,10 @@ const traducoes = {
     titleAgendar: 'Book your ride', titleHorarios: 'Service hours',
     titleAvaliacoes: 'What clients say', titleSobre: 'About ConduzRJ',
     footerCopy: '© 2024 Conduz RJ · All rights reserved',
+    subServicos: 'From executive transfers to city tourism. Choose the ideal service for you.',
+    subVeiculos: 'Comfort and safety on every ride.',
+    subAvaliacoes: 'Our passengers\' satisfaction is our greatest achievement.',
+    btnWhatsapp: 'Chat with us now!',
     btnAgendar2: 'Book this service →',
     servicos: [
       { nome: 'One-Way Ride', descricao: 'Simple trip from A to B' },
@@ -1290,6 +1298,10 @@ const traducoes = {
     titleAgendar: 'Reserve su viaje', titleHorarios: 'Horarios de atención',
     titleAvaliacoes: 'Lo que dicen los clientes', titleSobre: 'Sobre ConduzRJ',
     footerCopy: '© 2024 Conduz RJ · Todos los derechos reservados',
+    subServicos: 'Del traslado ejecutivo al turismo por la ciudad. Elija el servicio ideal para usted.',
+    subVeiculos: 'Confort y seguridad en cada viaje.',
+    subAvaliacoes: 'La satisfacción de nuestros pasajeros es nuestro mayor logro.',
+    btnWhatsapp: '¡Hable con nosotros ahora!',
     btnAgendar2: 'Reservar este servicio →',
     servicos: [
       { nome: 'Viaje Sencillo', descricao: 'Trayecto simple de A a B' },
@@ -1380,6 +1392,16 @@ function traduzir(lang) {
       if(btn) btn.textContent = t.btnAgendar2;
     });
   }
+
+  // Subtitulos das secoes
+  const subServicos = document.getElementById('sub-servicos');
+  if(subServicos) subServicos.textContent = t.subServicos;
+  const subVeiculos = document.getElementById('sub-veiculos');
+  if(subVeiculos) subVeiculos.textContent = t.subVeiculos;
+  const subAvaliacoes = document.getElementById('sub-avaliacoes');
+  if(subAvaliacoes) subAvaliacoes.textContent = t.subAvaliacoes;
+  const btnWhatsapp = document.getElementById('btn-whatsapp');
+  if(btnWhatsapp) btnWhatsapp.textContent = t.btnWhatsapp;
 
   localStorage.setItem('lang', lang);
 }
