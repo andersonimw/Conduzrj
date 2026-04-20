@@ -149,17 +149,34 @@ function setLang(lang) {
   renderMensagens();
 }
 
-// Tradução via MyMemory (gratuito)
+// Tradução via LibreTranslate (gratuito e mais preciso)
 async function traduzir(texto, de, para) {
   if(de === para) return texto;
+  // Tenta LibreTranslate primeiro
+  const servidores = [
+    'https://libretranslate.com',
+    'https://translate.terraprint.co',
+    'https://lt.vern.cc',
+  ];
+  for(const servidor of servidores) {
+    try {
+      const r = await fetch(servidor + '/translate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({q: texto, source: de, target: para, format: 'text'}),
+      });
+      if(!r.ok) continue;
+      const d = await r.json();
+      if(d.translatedText) return d.translatedText;
+    } catch(e) { continue; }
+  }
+  // Fallback: MyMemory
   try {
     const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(texto)}&langpair=${de}|${para}`;
     const r = await fetch(url);
     const d = await r.json();
     return d.responseData?.translatedText || texto;
-  } catch(e) {
-    return texto;
-  }
+  } catch(e) { return texto; }
 }
 
 // Detectar idioma do texto

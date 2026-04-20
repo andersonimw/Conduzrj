@@ -919,6 +919,24 @@ async function enviarMsgAdmin() {
 }
 
 async function traduzirAdmin(texto, de, para) {
+  if(de === para) return texto;
+  const servidores = [
+    'https://libretranslate.com',
+    'https://translate.terraprint.co',
+    'https://lt.vern.cc',
+  ];
+  for(const servidor of servidores) {
+    try {
+      const r = await fetch(servidor + '/translate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({q: texto, source: de, target: para, format: 'text'}),
+      });
+      if(!r.ok) continue;
+      const d = await r.json();
+      if(d.translatedText) return d.translatedText;
+    } catch(e) { continue; }
+  }
   try {
     const url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(texto) + '&langpair=' + de + '|' + para;
     const r = await fetch(url);

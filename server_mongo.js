@@ -1,4 +1,29 @@
 require("dotenv").config();
+const admin = require("firebase-admin");
+const serviceAccount = require("./firebase-service-account.json");
+
+if(!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
+
+async function enviarNotificacaoFCM(titulo, corpo, tokens) {
+  if(!tokens || tokens.length === 0) return;
+  for(const token of tokens) {
+    try {
+      await admin.messaging().send({
+        token,
+        notification: { title: titulo, body: corpo },
+        android: { priority: "high" },
+        apns: { payload: { aps: { sound: "default" } } }
+      });
+      console.log("✅ Notificação enviada:", token.substring(0,20)+"...");
+    } catch(e) {
+      console.log("❌ Erro notificação:", e.message);
+    }
+  }
+}
 const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -153,6 +178,12 @@ ${pet ? '🐾 Pet: '+pet+'\n' : ''}${req.body.carregador ? '🔌 Carregador: '+r
 👥 *Passageiros:* ${passageiros}
 ${bagagens && bagagens !== 'Nenhuma' ? '🧳 *Bagagens:* '+bagagens : ''}
 ${observacoes ? '📝 *Obs:* '+observacoes : ''}`;
+  // Enviar notificacao push para o admin
+  enviarNotificacao(
+    '🚗 Novo pedido — ConduzRJ',
+    nome + ' · ' + servico + ' · ' + data + ' às ' + hora
+  );
+
   res.json({ sucesso: true, whatsapp: `https://wa.me/55${tel}?text=${encodeURIComponent(msg)}` });
 });
 
@@ -324,15 +355,7 @@ app.post("/api/salvar-token", (req, res) => {
 // Enviar notificacao push
 async function enviarNotificacao(titulo, corpo) {
   if (tokensNotificacao.length === 0) return;
-  const axios = require("axios");
-  const { GoogleAuth } = require("google-auth-library");
-  try {
-    for (const token of tokensNotificacao) {
-      await axios.post("https://fcm.googleapis.com/v1/projects/conduzrj/messages:send", {
-        message: { token, notification: { title: titulo, body: corpo } }
-      });
-    }
-  } catch(e) { console.log("Erro notificacao:", e.message); }
+  await enviarNotificacaoFCM(titulo, corpo, tokensNotificacao);
 }
 // Verificar disponibilidade de horario
 app.get("/api/verificar-horario", async (req, res) => {
