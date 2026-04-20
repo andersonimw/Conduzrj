@@ -486,6 +486,15 @@ async function carregarPedidos() {
            style="display:inline-block;margin-top:4px;padding:6px 10px;background:#6366f1;color:#fff;border-radius:8px;font-size:11px;text-decoration:none;font-weight:600">
           ⭐ Avaliação
         </a>
+        <br>
+        <button onclick="abrirChat('${p.id}','${p.nome}')"
+          style="display:inline-block;margin-top:4px;padding:6px 10px;background:#0ea5e9;color:#fff;border-radius:8px;font-size:11px;font-weight:600;border:none;cursor:pointer">
+          💬 Chat
+        </button>
+        <button onclick="enviarLinkViagem('${p.id}','${p.nome}','${p.telefone}')"
+          style="display:inline-block;margin-top:4px;margin-left:4px;padding:6px 10px;background:#10b981;color:#fff;border-radius:8px;font-size:11px;font-weight:600;border:none;cursor:pointer">
+          🔗 Link
+        </button>
       </td>
     </tr>`;
   }).join('');
@@ -830,6 +839,147 @@ function cancelarFormVeiculo() {
   fotosNovas = [];
 }
 
+
+
+// ========== CHAT ==========
+let chatPedidoId = null;
+let chatRef = null;
+
+function abrirChat(pedidoId, nome) {
+  chatPedidoId = pedidoId;
+  document.getElementById('chat-titulo').textContent = '💬 Chat — ' + nome;
+  document.getElementById('chat-panel').style.display = 'flex';
+  document.getElementById('chat-msgs').innerHTML = '<div style="text-align:center;color:#555;padding:20px">Carregando...</div>';
+
+  if(chatRef) chatRef.off();
+  const db = firebase.database();
+  chatRef = db.ref('chats/' + pedidoId + '/msgs');
+  chatRef.on('value', snap => {
+    const msgs = snap.val() || {};
+    renderChatAdmin(msgs);
+  });
+}
+
+function fecharChat() {
+  document.getElementById('chat-panel').style.display = 'none';
+  if(chatRef) chatRef.off();
+  chatPedidoId = null;
+}
+
+function renderChatAdmin(msgs) {
+  const area = document.getElementById('chat-msgs');
+  const keys = Object.keys(msgs);
+  if(keys.length === 0) {
+    area.innerHTML = '<div style="text-align:center;color:#555;padding:20px">Nenhuma mensagem ainda</div>';
+    return;
+  }
+  area.innerHTML = '';
+  keys.forEach(k => {
+    const m = msgs[k];
+    const isCliente = m.de === 'cliente';
+    const div = document.createElement('div');
+    div.style.cssText = 'margin-bottom:12px;display:flex;flex-direction:column;align-items:' + (isCliente ? 'flex-start' : 'flex-end');
+    const bubble = document.createElement('div');
+    bubble.style.cssText = 'max-width:80%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.5;' + (isCliente ? 'background:#1e1e1e;color:#fff;border-bottom-left-radius:4px' : 'background:#c9a84c;color:#000;border-bottom-right-radius:4px');
+    const hora = new Date(m.hora).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    // Admin sempre vê em português
+    const textoPt = m.textoPt || m.texto;
+    bubble.innerHTML = '<div>' + textoPt + '</div>' +
+      (isCliente && m.lang !== 'pt' ? '<div style="font-size:11px;opacity:0.6;margin-top:4px;font-style:italic">Original: "' + m.texto + '"</div>' : '') +
+      '<div style="font-size:10px;opacity:0.5;margin-top:4px">' + (isCliente ? '👤 Cliente' : '🚗 Você') + ' · ' + hora + '</div>';
+    div.appendChild(bubble);
+    area.appendChild(div);
+  });
+  area.scrollTop = area.scrollHeight;
+}
+
+async function enviarMsgAdmin() {
+  const input = document.getElementById('chat-input');
+  const texto = input.value.trim();
+  if(!texto || !chatPedidoId) return;
+  input.value = '';
+
+  const db = firebase.database();
+
+  // Traduzir para EN e ES automaticamente
+  const textoEn = await traduzirAdmin(texto, 'pt', 'en');
+  const textoEs = await traduzirAdmin(texto, 'pt', 'es');
+
+  const msg = {
+    texto: texto,
+    textoPt: texto,
+    texto_en: textoEn,
+    texto_es: textoEs,
+    lang: 'pt',
+    de: 'motorista',
+    hora: Date.now(),
+  };
+
+  db.ref('chats/' + chatPedidoId + '/msgs').push(msg);
+}
+
+async function traduzirAdmin(texto, de, para) {
+  try {
+    const url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(texto) + '&langpair=' + de + '|' + para;
+    const r = await fetch(url);
+    const d = await r.json();
+    return d.responseData?.translatedText || texto;
+  } catch(e) { return texto; }
+}
+
+function enviarLinkViagem(pedidoId, nome, telefone) {
+  const link = 'https://conduzrj.onrender.com/viagem.html?id=' + pedidoId;
+  const tel = telefone.replace(/\D/g,'');
+  const msg = encodeURIComponent('Olá ' + nome + '! 👋\n\nAcesse o link abaixo para acompanhar sua viagem e conversar comigo em tempo real:\n\n' + link + '\n\n— Anderson, ConduzRJ 🚗');
+  window.open('https://wa.me/55' + tel + '?text=' + msg, '_blank');
+}
+
+function onEnterAdmin(e) {
+  if(e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    enviarMsgAdmin();
+  }
+}
+
 </script>
+
+<!-- PAINEL DE CHAT -->
+<div id="chat-panel" style="display:none;position:fixed;bottom:0;right:0;width:360px;height:500px;background:#111;border:1px solid #222;border-radius:16px 16px 0 0;flex-direction:column;z-index:999;box-shadow:0 -4px 30px rgba(0,0,0,0.5)">
+  
+  <!-- Header -->
+  <div style="padding:14px 16px;background:#161616;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;border-radius:16px 16px 0 0">
+    <div id="chat-titulo" style="font-size:14px;font-weight:700;color:#c9a84c">💬 Chat</div>
+    <button onclick="fecharChat()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+  </div>
+
+  <!-- Mensagens -->
+  <div id="chat-msgs" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px"></div>
+
+  <!-- Input -->
+  <div style="padding:10px 12px;border-top:1px solid #222;display:flex;gap:8px;align-items:flex-end">
+    <textarea id="chat-input" placeholder="Responder em português..." onkeydown="onEnterAdmin(event)"
+      style="flex:1;background:#1e1e1e;border:1.5px solid #333;color:#fff;padding:10px 14px;border-radius:20px;font-size:14px;resize:none;max-height:80px;outline:none;font-family:inherit"></textarea>
+    <button onclick="enviarMsgAdmin()"
+      style="width:40px;height:40px;border-radius:50%;background:#c9a84c;border:none;color:#000;font-size:18px;cursor:pointer;flex-shrink:0">➤</button>
+  </div>
+  <div style="text-align:center;font-size:11px;color:#555;padding:6px">Sua resposta será traduzida automaticamente</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<script>
+if(!firebase.apps.length) {
+  firebase.initializeApp({
+    apiKey: "AIzaSyCKCfAzaBWuqZNEj5y4nV2ZU9-2OysosDg",
+    authDomain: "conduzrj.firebaseapp.com",
+    projectId: "conduzrj",
+    storageBucket: "conduzrj.firebasestorage.app",
+    messagingSenderId: "357584563202",
+    appId: "1:357584563202:web:1f6d9047f93b5af03d0b1b",
+    databaseURL: "https://conduzrj-default-rtdb.firebaseio.com"
+  });
+}
+</script>
+
 </body>
 </html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ConduzRJ — Sua Viagem</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Segoe UI', sans-serif; background:#0a0a0a; color:#fff; height:100vh; display:flex; flex-direction:column; }
+
+/* HEADER */
+.header { background:#111; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #222; }
+.header-logo { font-size:20px; font-weight:700; color:#c9a84c; }
+.header-status { display:flex; align-items:center; gap:8px; font-size:13px; color:#aaa; }
+.status-dot { width:8px; height:8px; border-radius:50%; background:#4caf50; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* INFO DA VIAGEM */
+.viagem-info { background:#161616; padding:16px 20px; border-bottom:1px solid #222; }
+.viagem-servico { font-size:16px; font-weight:700; color:#c9a84c; margin-bottom:4px; }
+.viagem-detalhe { font-size:13px; color:#888; }
+
+/* LANG SELECTOR */
+.lang-bar { background:#111; padding:10px 20px; border-bottom:1px solid #222; display:flex; align-items:center; gap:10px; }
+.lang-bar span { font-size:12px; color:#888; }
+.lang-btn { background:#222; border:1px solid #333; color:#fff; padding:6px 12px; border-radius:20px; font-size:13px; cursor:pointer; transition:.2s; }
+.lang-btn.ativo { background:#c9a84c; border-color:#c9a84c; color:#000; font-weight:700; }
+
+/* CHAT */
+.chat-area { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; }
+.msg { max-width:80%; padding:12px 16px; border-radius:16px; font-size:14px; line-height:1.5; }
+.msg.cliente { align-self:flex-end; background:#c9a84c; color:#000; border-bottom-right-radius:4px; }
+.msg.motorista { align-self:flex-start; background:#1e1e1e; color:#fff; border-bottom-left-radius:4px; }
+.msg .msg-original { font-size:11px; opacity:0.6; margin-top:4px; font-style:italic; }
+.msg .msg-hora { font-size:10px; opacity:0.5; margin-top:4px; text-align:right; }
+.msg-traducao-badge { font-size:10px; background:rgba(0,0,0,0.2); padding:2px 6px; border-radius:10px; margin-top:4px; display:inline-block; }
+
+.sem-msgs { text-align:center; color:#444; font-size:14px; margin:auto; }
+.sem-msgs div { font-size:40px; margin-bottom:12px; }
+
+/* INPUT */
+.input-area { background:#111; padding:12px 16px; border-top:1px solid #222; }
+.input-row { display:flex; gap:8px; align-items:flex-end; }
+.input-text { flex:1; background:#1e1e1e; border:1.5px solid #333; color:#fff; padding:12px 16px; border-radius:24px; font-size:15px; resize:none; max-height:100px; outline:none; font-family:inherit; }
+.input-text:focus { border-color:#c9a84c; }
+.btn-mic { width:44px; height:44px; border-radius:50%; background:#1e1e1e; border:1.5px solid #333; color:#aaa; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.2s; flex-shrink:0; }
+.btn-mic.gravando { background:#c00; border-color:#c00; color:#fff; animation:pulse 1s infinite; }
+.btn-send { width:44px; height:44px; border-radius:50%; background:#c9a84c; border:none; color:#000; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.btn-send:disabled { background:#333; color:#666; cursor:not-allowed; }
+.input-hint { font-size:11px; color:#555; text-align:center; margin-top:6px; }
+
+/* LOADING */
+.loading { text-align:center; padding:40px; color:#555; }
+.loading div { font-size:30px; margin-bottom:12px; animation:spin 1s linear infinite; display:inline-block; }
+@keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">ConduzRJ</div>
+  <div class="header-status">
+    <div class="status-dot"></div>
+    <span id="status-txt">Conectando...</span>
+  </div>
+</div>
+
+<div class="viagem-info">
+  <div class="viagem-servico" id="info-servico">Carregando...</div>
+  <div class="viagem-detalhe" id="info-detalhe"></div>
+</div>
+
+<div class="lang-bar">
+  <span id="lang-label">Idioma:</span>
+  <button class="lang-btn ativo" onclick="setLang('pt')">🇧🇷 PT</button>
+  <button class="lang-btn" onclick="setLang('en')">🇺🇸 EN</button>
+  <button class="lang-btn" onclick="setLang('es')">🇪🇸 ES</button>
+</div>
+
+<div class="chat-area" id="chat-area">
+  <div class="sem-msgs">
+    <div>💬</div>
+    <span id="sem-msgs-txt">Nenhuma mensagem ainda.<br>Diga olá ao motorista!</span>
+  </div>
+</div>
+
+<div class="input-area">
+  <div class="input-row">
+    <button class="btn-mic" id="btn-mic" onclick="toggleMic()" title="Falar">🎤</button>
+    <textarea class="input-text" id="input-msg" placeholder="Digite sua mensagem..." rows="1" onkeydown="onEnter(event)"></textarea>
+    <button class="btn-send" id="btn-send" onclick="enviarMensagem()">➤</button>
+  </div>
+  <div class="input-hint" id="input-hint">Sua mensagem será traduzida automaticamente</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<script>
+// Firebase config
+firebase.initializeApp({
+  apiKey: "AIzaSyCKCfAzaBWuqZNEj5y4nV2ZU9-2OysosDg",
+  authDomain: "conduzrj.firebaseapp.com",
+  projectId: "conduzrj",
+  storageBucket: "conduzrj.firebasestorage.app",
+  messagingSenderId: "357584563202",
+  appId: "1:357584563202:web:1f6d9047f93b5af03d0b1b",
+  databaseURL: "https://conduzrj-default-rtdb.firebaseio.com"
+});
+const db = firebase.database();
+
+// Estado
+const params = new URLSearchParams(window.location.search);
+const pedidoId = params.get('id') || window.location.pathname.split('/').pop();
+let langCliente = localStorage.getItem('viagem-lang') || 'pt';
+let reconhecimento = null;
+let gravando = false;
+let mensagens = {};
+
+// Textos por idioma
+const textos = {
+  pt: {
+    status: 'Conectado', langLabel: 'Idioma:', semMsgs: 'Nenhuma mensagem ainda.<br>Diga olá ao motorista!',
+    placeholder: 'Digite sua mensagem...', hint: 'Sua mensagem será traduzida automaticamente',
+    voce: 'Você', motorista: 'Motorista', traduzido: 'traduzido',
+  },
+  en: {
+    status: 'Connected', langLabel: 'Language:', semMsgs: 'No messages yet.<br>Say hello to your driver!',
+    placeholder: 'Type your message...', hint: 'Your message will be automatically translated',
+    voce: 'You', motorista: 'Driver', traduzido: 'translated',
+  },
+  es: {
+    status: 'Conectado', langLabel: 'Idioma:', semMsgs: 'Sin mensajes aún.<br>¡Saluda a tu conductor!',
+    placeholder: 'Escribe tu mensaje...', hint: 'Tu mensaje será traducido automáticamente',
+    voce: 'Tú', motorista: 'Conductor', traduzido: 'traducido',
+  }
+};
+
+function setLang(lang) {
+  langCliente = lang;
+  localStorage.setItem('viagem-lang', lang);
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('ativo'));
+  event.target.classList.add('ativo');
+  const t = textos[lang];
+  document.getElementById('status-txt').textContent = t.status;
+  document.getElementById('lang-label').textContent = t.langLabel;
+  document.getElementById('sem-msgs-txt').innerHTML = t.semMsgs;
+  document.getElementById('input-msg').placeholder = t.placeholder;
+  document.getElementById('input-hint').textContent = t.hint;
+  renderMensagens();
+}
+
+// Tradução via MyMemory (gratuito)
+async function traduzir(texto, de, para) {
+  if(de === para) return texto;
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(texto)}&langpair=${de}|${para}`;
+    const r = await fetch(url);
+    const d = await r.json();
+    return d.responseData?.translatedText || texto;
+  } catch(e) {
+    return texto;
+  }
+}
+
+// Detectar idioma do texto
+function detectarLang(texto) {
+  // Simples: verifica caracteres comuns
+  if(/[àáâãéêíóôõúç]/i.test(texto)) return 'pt';
+  if(/[ñáéíóú¿¡]/i.test(texto)) return 'es';
+  return 'en';
+}
+
+// Carregar pedido
+async function carregarPedido() {
+  try {
+    const r = await fetch('/api/admin/pedidos', {
+      headers: { 'Authorization': 'Bearer ' + 'publico' }
+    });
+    // Tenta buscar info básica do pedido
+    document.getElementById('info-servico').textContent = '🚗 Sua viagem ConduzRJ';
+    document.getElementById('info-detalhe').textContent = 'Chat com seu motorista em tempo real';
+    document.getElementById('status-txt').textContent = textos[langCliente].status;
+  } catch(e) {
+    document.getElementById('info-servico').textContent = '🚗 Sua viagem ConduzRJ';
+    document.getElementById('info-detalhe').textContent = 'Chat com seu motorista em tempo real';
+  }
+}
+
+// Enviar mensagem
+async function enviarMensagem() {
+  const input = document.getElementById('input-msg');
+  const texto = input.value.trim();
+  if(!texto) return;
+  input.value = '';
+
+  // Traduzir para português (para o motorista)
+  const textoPt = langCliente !== 'pt' ? await traduzir(texto, langCliente, 'pt') : texto;
+
+  const msg = {
+    texto: texto,
+    textoPt: textoPt,
+    lang: langCliente,
+    de: 'cliente',
+    hora: Date.now(),
+  };
+
+  db.ref(`chats/${pedidoId}/msgs`).push(msg);
+}
+
+// Renderizar mensagens
+function renderMensagens() {
+  const area = document.getElementById('chat-area');
+  const keys = Object.keys(mensagens);
+
+  if(keys.length === 0) {
+    area.innerHTML = `<div class="sem-msgs"><div>💬</div><span id="sem-msgs-txt">${textos[langCliente].semMsgs}</span></div>`;
+    return;
+  }
+
+  area.innerHTML = '';
+  keys.forEach(k => {
+    const m = mensagens[k];
+    const isCliente = m.de === 'cliente';
+    const div = document.createElement('div');
+    div.className = `msg ${isCliente ? 'cliente' : 'motorista'}`;
+
+    // Texto principal — mostrar na língua do cliente
+    let textoMostrar = texto => texto;
+    if(isCliente) {
+      textoMostrar = m.texto; // própria mensagem
+    } else {
+      // Mensagem do motorista — mostrar traduzida se disponível
+      textoMostrar = m[`texto_${langCliente}`] || m.textoPt || m.texto;
+    }
+
+    const hora = new Date(m.hora).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    div.innerHTML = `
+      <div>${textoMostrar}</div>
+      ${isCliente && langCliente !== 'pt' && m.textoPt !== m.texto ? `<div class="msg-original">${textos[langCliente].traduzido}: "${m.textoPt}"</div>` : ''}
+      <div class="msg-hora">${hora}</div>
+    `;
+    area.appendChild(div);
+  });
+
+  area.scrollTop = area.scrollHeight;
+}
+
+// Escutar mensagens em tempo real
+function escutarMensagens() {
+  db.ref(`chats/${pedidoId}/msgs`).on('value', snap => {
+    mensagens = snap.val() || {};
+    renderMensagens();
+  });
+}
+
+// Microfone
+function toggleMic() {
+  if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Seu navegador não suporta reconhecimento de voz. Use o Chrome.');
+    return;
+  }
+  if(gravando) {
+    reconhecimento.stop();
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  reconhecimento = new SR();
+  reconhecimento.lang = langCliente === 'pt' ? 'pt-BR' : langCliente === 'es' ? 'es-ES' : 'en-US';
+  reconhecimento.continuous = false;
+  reconhecimento.interimResults = false;
+
+  reconhecimento.onstart = () => {
+    gravando = true;
+    document.getElementById('btn-mic').classList.add('gravando');
+    document.getElementById('btn-mic').textContent = '⏹';
+  };
+  reconhecimento.onresult = e => {
+    document.getElementById('input-msg').value = e.results[0][0].transcript;
+  };
+  reconhecimento.onend = () => {
+    gravando = false;
+    document.getElementById('btn-mic').classList.remove('gravando');
+    document.getElementById('btn-mic').textContent = '🎤';
+  };
+  reconhecimento.start();
+}
+
+function onEnter(e) {
+  if(e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    enviarMensagem();
+  }
+}
+
+// Init
+carregarPedido();
+escutarMensagens();
+setLang(langCliente);
+</script>
+</body>
+</html>
