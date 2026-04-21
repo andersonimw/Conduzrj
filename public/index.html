@@ -1721,7 +1721,7 @@ const messaging=firebase.messaging();
 function pedirPermissaoNotificacao(){
   Notification.requestPermission().then(function(perm){
     if(perm==="granted"){
-      messaging.getToken({vapidKey:"BJEIW9Nyu-vZFxzwJ6hoe3QTRpI_JS_WEPhA2-PFoFA54n-GZ96WrVsDVtAEjB6Q-qOM5WscLwwsGnpWk-nQJX4"}).then(function(token){
+      messaging.getToken({vapidKey:"BPOQtuZif3hWnJRAYr23ju-n231c8D7lWv7E9J4OXdqz53l3h9NZdusdiGrOwOvuO55KjeBvl_ldh2cO28q49vw"}).then(function(token){
         fetch("/api/salvar-token",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:token})});
       });
     }
