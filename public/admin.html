@@ -856,8 +856,11 @@ async function ativarNotificacoes() {
         alert('Erro: Firebase Auth não carregado.');
         return;
       }
+      alert('Passo 1: fazendo login anônimo...');
       await firebase.auth().signInAnonymously();
+      alert('Passo 2: registrando service worker...');
       const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+      alert('Passo 3: obtendo token FCM...');
       const messaging = firebase.messaging();
       const token = await messaging.getToken({
         vapidKey: 'BJEIW9Nyu-vZFxzwJ6hoe3QTRpI_JS_WEPhA2-PFoFA54n-GZ96WrVsDVtAEjB6Q-qOM5WscLwwsGnpWk-nQJX4',
