@@ -203,6 +203,7 @@ function iniciarMonitoramento() {
     <div class="sidebar-item" onclick="irPara('frota')"><span class="icone">🚗</span> Frota de Veículos</div>
     <div class="sidebar-item" onclick="irPara('config')"><span class="icone">⚙️</span> Configurações</div>
     <div class="sidebar-item" onclick="window.open('/','_blank')"><span class="icone">🌐</span> Ver site</div>
+    <div class="sidebar-item" onclick="ativarNotificacoes()"><span class="icone">🔔</span> Ativar notificações</div>
     <div class="sidebar-bottom">
       <button class="btn-sair" onclick="fazerLogout()">Sair do painel</button>
     </div>
@@ -840,6 +841,35 @@ function cancelarFormVeiculo() {
 }
 
 
+
+// ========== NOTIFICACOES ==========
+async function ativarNotificacoes() {
+  if(!('Notification' in window)) {
+    alert('Seu navegador não suporta notificações.');
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  if(perm === 'granted') {
+    try {
+      const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+      const messaging = firebase.messaging();
+      const token = await messaging.getToken({
+        vapidKey: 'BJEIW9Nyu-vZFxzwJ6hoe3QTRpI_JS_WEPhA2-PFoFA54n-GZ96WrVsDVtAEjB6Q-qOM5WscLwwsGnpWk-nQJX4',
+        serviceWorkerRegistration: reg
+      });
+      await fetch('/api/salvar-token', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({token})
+      });
+      alert('✅ Notificações ativadas! Você receberá alertas de novos pedidos.');
+    } catch(e) {
+      alert('Erro ao ativar: ' + e.message);
+    }
+  } else {
+    alert('Permissão negada. Ative nas configurações do Chrome.');
+  }
+}
 
 // ========== CHAT ==========
 let chatPedidoId = null;
