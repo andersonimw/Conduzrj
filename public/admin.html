@@ -844,8 +844,8 @@ function cancelarFormVeiculo() {
 
 // ========== NOTIFICACOES ==========
 async function ativarNotificacoes() {
-  if (!('Notification' in window)) {
-    alert('Seu navegador não suporta notificações.');
+  if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+    alert('Seu navegador não suporta notificações push.');
     return;
   }
   const perm = await Notification.requestPermission();
@@ -856,20 +856,30 @@ async function ativarNotificacoes() {
   try {
     const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
     await navigator.serviceWorker.ready;
-    const messaging = firebase.messaging();
-    const token = await messaging.getToken({
-      vapidKey: 'BPOQtuZif3hWnJRAYr23ju-n231c8D7lWv7E9J4OXdqz53l3h9NZdusdiGrOwOvuO55KjeBvl_ldh2cO28q49vw',
-      serviceWorkerRegistration: reg
+    const vapidPublicKey = 'BLU2busxH85trFqeHSMl68XkFZJC63kDrHMC9VLpzDKBDdqPVeNbmEkhVEoB34vwPEDAAo3OxsCKz-tc2J2Fx9s';
+    const convertedKey = urlBase64ToUint8Array(vapidPublicKey);
+    const subscription = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: convertedKey
     });
     await fetch('/api/salvar-token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token })
+      body: JSON.stringify({ token: JSON.stringify(subscription) })
     });
     alert('✅ Notificações ativadas! Você receberá alertas de novos pedidos.');
   } catch (e) {
     alert('Erro ao ativar: ' + e.message);
   }
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
 }
 
 // ========== CHAT ==========

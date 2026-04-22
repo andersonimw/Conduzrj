@@ -15,17 +15,23 @@ if(!admin.apps.length) {
   }
 }
 
+const webpush = require('web-push');
+webpush.setVapidDetails(
+  process.env.VAPID_EMAIL,
+  process.env.VAPID_PUBLIC_KEY,
+  process.env.VAPID_PRIVATE_KEY
+);
+
 async function enviarNotificacaoFCM(titulo, corpo, tokens) {
   if(!tokens || tokens.length === 0) return;
   for(const token of tokens) {
     try {
-      await admin.messaging().send({
-        token,
-        notification: { title: titulo, body: corpo },
-        android: { priority: "high" },
-        apns: { payload: { aps: { sound: "default" } } }
-      });
-      console.log("✅ Notificação enviada:", token.substring(0,20)+"...");
+      const subscription = JSON.parse(token);
+      await webpush.sendNotification(subscription, JSON.stringify({
+        title: titulo,
+        body: corpo
+      }));
+      console.log("✅ Notificação Web Push enviada");
     } catch(e) {
       console.log("❌ Erro notificação:", e.message);
     }
