@@ -17,9 +17,9 @@ if(!admin.apps.length) {
 
 const webpush = require('web-push');
 webpush.setVapidDetails(
-  process.env.VAPID_EMAIL,
-  process.env.VAPID_PUBLIC_KEY,
-  process.env.VAPID_PRIVATE_KEY
+  process.env.VAPID_EMAIL || 'mailto:conduzrjtransfer@gmail.com',
+  process.env.VAPID_PUBLIC_KEY || 'BLU2busxH85trFqeHSMl68XkFZJC63kDrHMC9VLpzDKBDdqPVeNbmEkhVEoB34vwPEDAAo3OxsCKz-tc2J2Fx9s',
+  process.env.VAPID_PRIVATE_KEY || 'kPLG4Nf0e6mqkpHi0VMtzHeWaPuQHTvIj5ENg9ItJrA'
 );
 
 async function enviarNotificacaoFCM(titulo, corpo, tokens) {
