@@ -844,39 +844,31 @@ function cancelarFormVeiculo() {
 
 // ========== NOTIFICACOES ==========
 async function ativarNotificacoes() {
-  if(!('Notification' in window)) {
+  if (!('Notification' in window)) {
     alert('Seu navegador não suporta notificações.');
     return;
   }
   const perm = await Notification.requestPermission();
-  if(perm === 'granted') {
-    try {
-      // Login anonimo para autenticar no Firebase
-      if(!firebase.auth) {
-        alert('Erro: Firebase Auth não carregado.');
-        return;
-      }
-      alert('Passo 1: fazendo login anônimo...');
-      await firebase.auth().signInAnonymously();
-      alert('Passo 2: registrando service worker...');
-      const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-      alert('Passo 3: obtendo token FCM...');
-      const messaging = firebase.messaging();
-      const token = await messaging.getToken({
-        vapidKey: 'BPOQtuZif3hWnJRAYr23ju-n231c8D7lWv7E9J4OXdqz53l3h9NZdusdiGrOwOvuO55KjeBvl_ldh2cO28q49vw',
-        serviceWorkerRegistration: reg
-      });
-      await fetch('/api/salvar-token', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({token})
-      });
-      alert('✅ Notificações ativadas! Você receberá alertas de novos pedidos.');
-    } catch(e) {
-      alert('Erro ao ativar: ' + e.message);
-    }
-  } else {
+  if (perm !== 'granted') {
     alert('Permissão negada. Ative nas configurações do Chrome.');
+    return;
+  }
+  try {
+    const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    await navigator.serviceWorker.ready;
+    const messaging = firebase.messaging();
+    const token = await messaging.getToken({
+      vapidKey: 'BPOQtuZif3hWnJRAYr23ju-n231c8D7lWv7E9J4OXdqz53l3h9NZdusdiGrOwOvuO55KjeBvl_ldh2cO28q49vw',
+      serviceWorkerRegistration: reg
+    });
+    await fetch('/api/salvar-token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token })
+    });
+    alert('✅ Notificações ativadas! Você receberá alertas de novos pedidos.');
+  } catch (e) {
+    alert('Erro ao ativar: ' + e.message);
   }
 }
 
