@@ -973,11 +973,28 @@ async function enviarPedido() {
     });
     const d = await r.json();
     if (d.sucesso) {
-      wppLink = d.whatsapp;
-      document.getElementById('modalTexto').textContent = `Pedido registrado! Clique em "Abrir WhatsApp" para enviar sua solicitação de ${servico} para ${data} às ${hora}.`;
-      document.getElementById('btnWpp').onclick = () => { window.open(wppLink,'_blank'); fecharModal(); };
-      document.getElementById('modal').classList.add('open');
-      limparForm();
+      // Redirecionar para pagamento MercadoPago
+      const valorTexto = document.getElementById('calc-valor').textContent;
+      const valorNum = parseFloat(valorTexto.replace(/[^0-9,]/g,'').replace(',','.')) || 120;
+      const mp = await fetch('/api/criar-pagamento', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          nome, servico, valor: valorNum, pedidoId: d.id
+        })
+      });
+      const mpData = await mp.json();
+      if (mpData.url) {
+        limparForm();
+        window.location.href = mpData.url;
+      } else {
+        // Fallback: abrir WhatsApp normalmente
+        wppLink = d.whatsapp;
+        document.getElementById('modalTexto').textContent = `Pedido registrado! Clique em "Abrir WhatsApp" para enviar sua solicitação de ${servico} para ${data} às ${hora}.`;
+        document.getElementById('btnWpp').onclick = () => { window.open(wppLink,'_blank'); fecharModal(); };
+        document.getElementById('modal').classList.add('open');
+        limparForm();
+      }
     } else {
       alert(d.erro || 'Erro ao enviar pedido');
     }

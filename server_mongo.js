@@ -16,6 +16,11 @@ if(!admin.apps.length) {
 }
 
 const webpush = require('web-push');
+const { MercadoPagoConfig, Preference } = require('mercadopago');
+
+const mp = new MercadoPagoConfig({
+  accessToken: process.env.MP_ACCESS_TOKEN
+});
 webpush.setVapidDetails(
   process.env.VAPID_EMAIL || 'mailto:conduzrjtransfer@gmail.com',
   process.env.VAPID_PUBLIC_KEY || 'BLU2busxH85trFqeHSMl68XkFZJC63kDrHMC9VLpzDKBDdqPVeNbmEkhVEoB34vwPEDAAo3OxsCKz-tc2J2Fx9s',
@@ -359,6 +364,36 @@ app.get('/{*path}', (req, res) => {
 
 // Salvar token de notificacao
 let tokensNotificacao = [];
+// Criar preferência de pagamento MercadoPago
+app.post("/api/criar-pagamento", async (req, res) => {
+  try {
+    const { nome, servico, valor, pedidoId } = req.body;
+    const preference = new Preference(mp);
+    const result = await preference.create({
+      body: {
+        items: [{
+          title: `ConduzRJ — ${servico}`,
+          quantity: 1,
+          currency_id: 'BRL',
+          unit_price: parseFloat(valor)
+        }],
+        payer: { name: nome },
+        back_urls: {
+          success: `https://conduzrj.onrender.com/pagamento-sucesso.html?id=${pedidoId}`,
+          failure: `https://conduzrj.onrender.com/pagamento-falhou.html?id=${pedidoId}`,
+          pending: `https://conduzrj.onrender.com/pagamento-pendente.html?id=${pedidoId}`
+        },
+        auto_return: 'approved',
+        external_reference: pedidoId
+      }
+    });
+    res.json({ url: result.init_point });
+  } catch(e) {
+    console.error('Erro MercadoPago:', e.message);
+    res.status(500).json({ erro: e.message });
+  }
+});
+
 app.post("/api/salvar-token", (req, res) => {
   const { token } = req.body;
   if (token && !tokensNotificacao.includes(token)) tokensNotificacao.push(token);
