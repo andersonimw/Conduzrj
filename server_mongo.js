@@ -364,6 +364,40 @@ app.get('/{*path}', (req, res) => {
 
 // Salvar token de notificacao
 let tokensNotificacao = [];
+// Webhook MercadoPago
+app.post("/api/webhook-mp", async (req, res) => {
+  try {
+    const { type, data } = req.body;
+    if (type === 'payment' && data && data.id) {
+      const { MercadoPagoConfig, Payment } = require('mercadopago');
+      const mpClient = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
+      const payment = new Payment(mpClient);
+      const pag = await payment.get({ id: data.id });
+      if (pag.status === 'approved') {
+        const pedidoId = pag.external_reference;
+        const db = await getDB();
+        const pedidos = db.pedidos || [];
+        const idx = pedidos.findIndex(p => String(p.id) === String(pedidoId));
+        if (idx !== -1) {
+          pedidos[idx].status = 'confirmado';
+          pedidos[idx].pagamento = 'aprovado';
+          pedidos[idx].pagamento_id = data.id;
+          await saveDB('pedidos', pedidos);
+          enviarNotificacao(
+            '💰 Pagamento aprovado!',
+            pedidos[idx].nome + ' · ' + pedidos[idx].servico
+          );
+          console.log('✅ Pagamento aprovado para pedido:', pedidoId);
+        }
+      }
+    }
+    res.sendStatus(200);
+  } catch(e) {
+    console.error('Erro webhook MP:', e.message);
+    res.sendStatus(200);
+  }
+});
+
 // Criar preferência de pagamento MercadoPago
 app.post("/api/criar-pagamento", async (req, res) => {
   try {
