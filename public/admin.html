@@ -496,6 +496,10 @@ async function carregarPedidos() {
           style="display:inline-block;margin-top:4px;margin-left:4px;padding:6px 10px;background:#10b981;color:#fff;border-radius:8px;font-size:11px;font-weight:600;border:none;cursor:pointer">
           🔗 Link
         </button>
+        <button onclick="compartilharLocalizacao('${p.id}','${p.nome}')"
+          style="display:inline-block;margin-top:4px;margin-left:4px;padding:6px 10px;background:#1a4a1a;color:#4caf50;border-radius:8px;font-size:11px;font-weight:600;border:none;cursor:pointer">
+          📍 GPS
+        </button>
       </td>
     </tr>`;
   }).join('');
@@ -885,6 +889,48 @@ function urlBase64ToUint8Array(base64String) {
 // ========== CHAT ==========
 let chatPedidoId = null;
 let chatRef = null;
+
+let transmitindoLocalizacao = false;
+let watchId = null;
+let pedidoTransmitindo = null;
+
+function compartilharLocalizacao(pedidoId, nome) {
+  if (!navigator.geolocation) {
+    alert('Seu celular não suporta GPS.');
+    return;
+  }
+  if (transmitindoLocalizacao && pedidoTransmitindo === pedidoId) {
+    // Parar transmissão
+    navigator.geolocation.clearWatch(watchId);
+    transmitindoLocalizacao = false;
+    pedidoTransmitindo = null;
+    firebase.database().ref('localizacao/' + pedidoId).remove();
+    alert('📍 Transmissão de localização encerrada.');
+    renderPedidos();
+    return;
+  }
+  // Iniciar transmissão
+  transmitindoLocalizacao = true;
+  pedidoTransmitindo = pedidoId;
+  watchId = navigator.geolocation.watchPosition(
+    pos => {
+      const { latitude, longitude } = pos.coords;
+      firebase.database().ref('localizacao/' + pedidoId).set({
+        lat: latitude,
+        lng: longitude,
+        ts: Date.now()
+      });
+    },
+    err => { alert('Erro GPS: ' + err.message); },
+    { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+  );
+  // Gerar link e abrir WhatsApp
+  const link = 'https://conduzrj.onrender.com/viagem.html?id=' + pedidoId;
+  const msg = encodeURIComponent('🚗 Acompanhe minha localização em tempo real:\n' + link);
+  window.open('https://wa.me/?text=' + msg, '_blank');
+  alert('✅ Transmitindo localização! O cliente pode acompanhar pelo link.');
+  renderPedidos();
+}
 
 function abrirChat(pedidoId, nome) {
   chatPedidoId = pedidoId;

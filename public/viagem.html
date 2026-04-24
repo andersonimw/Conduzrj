@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ConduzRJ — Sua Viagem</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { font-family: 'Segoe UI', sans-serif; background:#0a0a0a; color:#fff; height:100vh; display:flex; flex-direction:column; }
@@ -19,6 +21,13 @@ body { font-family: 'Segoe UI', sans-serif; background:#0a0a0a; color:#fff; heig
 .viagem-info { background:#161616; padding:16px 20px; border-bottom:1px solid #222; }
 .viagem-servico { font-size:16px; font-weight:700; color:#c9a84c; margin-bottom:4px; }
 .viagem-detalhe { font-size:13px; color:#888; }
+
+/* MAPA */
+.mapa-area { background:#111; border-bottom:1px solid #222; display:none; }
+.mapa-area.ativo { display:block; }
+.mapa-header { padding:10px 20px; display:flex; align-items:center; gap:8px; font-size:13px; color:#c9a84c; }
+.mapa-header span { animation:pulse 1s infinite; }
+#mapa { width:100%; height:220px; }
 
 /* LANG SELECTOR */
 .lang-bar { background:#111; padding:10px 20px; border-bottom:1px solid #222; display:flex; align-items:center; gap:10px; }
@@ -68,6 +77,11 @@ body { font-family: 'Segoe UI', sans-serif; background:#0a0a0a; color:#fff; heig
 <div class="viagem-info">
   <div class="viagem-servico" id="info-servico">Carregando...</div>
   <div class="viagem-detalhe" id="info-detalhe"></div>
+</div>
+
+<div class="mapa-area" id="mapa-area">
+  <div class="mapa-header">📍 <span>●</span> Motorista a caminho — localização em tempo real</div>
+  <div id="mapa"></div>
 </div>
 
 <div class="lang-bar">
@@ -309,8 +323,38 @@ function onEnter(e) {
   }
 }
 
+// Mapa de rastreamento
+let mapa = null;
+let marcador = null;
+
+function iniciarMapa(lat, lng) {
+  const mapaArea = document.getElementById('mapa-area');
+  mapaArea.classList.add('ativo');
+  if (!mapa) {
+    mapa = L.map('mapa', { zoomControl:true, attributionControl:false }).setView([lat, lng], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
+    const icone = L.divIcon({ html:'🚗', className:'', iconSize:[30,30] });
+    marcador = L.marker([lat, lng], { icon: icone }).addTo(mapa);
+  } else {
+    marcador.setLatLng([lat, lng]);
+    mapa.setView([lat, lng], 15);
+  }
+}
+
+function escutarLocalizacao() {
+  if (!pedidoId) return;
+  const db = firebase.database();
+  db.ref('localizacao/' + pedidoId).on('value', snap => {
+    const loc = snap.val();
+    if (loc && loc.lat && loc.lng) {
+      iniciarMapa(loc.lat, loc.lng);
+    }
+  });
+}
+
 // Init
 carregarPedido();
+escutarLocalizacao();
 escutarMensagens();
 setLang(langCliente);
 </script>
