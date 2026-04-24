@@ -202,7 +202,7 @@ ${observacoes ? '📝 *Obs:* '+observacoes : ''}`;
     nome + ' · ' + servico + ' · ' + data + ' às ' + hora
   );
 
-  res.json({ sucesso: true, whatsapp: `https://wa.me/55${tel}?text=${encodeURIComponent(msg)}` });
+  res.json({ sucesso: true, id: pedido.id, whatsapp: `https://wa.me/55${tel}?text=${encodeURIComponent(msg)}` });
 });
 
 // Rota de ping leve para cronjob
