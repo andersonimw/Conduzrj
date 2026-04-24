@@ -357,8 +357,15 @@ function escutarLocalizacao() {
   const db = firebase.database();
   db.ref('localizacao/' + pedidoId).on('value', snap => {
     const loc = snap.val();
-    if (loc && loc.lat && loc.lng) {
-      iniciarMapa(loc.lat, loc.lng);
+    if (loc && loc.lat && loc.lng && loc.ts) {
+      const agora = Date.now();
+      const diff = agora - loc.ts;
+      if (diff < 30000) {
+        iniciarMapa(loc.lat, loc.lng);
+      } else {
+        // Localização antiga - esconder mapa
+        document.getElementById('mapa-area').classList.remove('ativo');
+      }
     }
   });
 }
