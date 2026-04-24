@@ -973,6 +973,7 @@ async function enviarPedido() {
     });
     const d = await r.json();
     if (d.sucesso) {
+      alert('ID: ' + d.id + ' | valor: ' + document.getElementById('calc-valor').textContent);
       // Redirecionar para pagamento MercadoPago
       const valorTexto = document.getElementById('calc-valor').textContent;
       const valorNum = parseFloat(valorTexto.replace(/[^0-9,]/g,'').replace(',','.')) || 120;
