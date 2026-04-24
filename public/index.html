@@ -882,7 +882,21 @@ async function enviarPedidoModal() {
     const d = await r.json();
     if(d.sucesso){
       fecharModalServico();
-      window.open(d.whatsapp, '_blank');
+      const valorTexto = document.getElementById('ms-calc-valor').textContent;
+      const valorNum = parseFloat(valorTexto.replace(/[^0-9,]/g,'').replace(',','.')) || 120;
+      const mpResp = await fetch('/api/criar-pagamento', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          nome, servico, valor: valorNum, pedidoId: d.id
+        })
+      });
+      const mpData = await mpResp.json();
+      if(mpData.url) {
+        window.location.href = mpData.url;
+      } else {
+        window.open(d.whatsapp, '_blank');
+      }
     } else {
       alert(d.erro || 'Erro ao enviar pedido');
     }
