@@ -423,3 +423,4 @@ app.listen(PORT, () => {
   console.log(`✅ Conduz RJ rodando em http://localhost:${PORT}`);
   console.log(`📱 Painel admin em http://localhost:${PORT}/admin`);
 });
+// deploy Thu Apr 23 23:07:38 -03 2026
